@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-20",
+  "url": "http://127.0.0.1:5175/#/map",
+  "method": "CUA: responsive viewport checks, DOM measurements and user interactions",
+  "checks": [
+    {
+      "scenario": "navigation-Курсы",
+      "cameraFinite": true,
+      "nodes": 24
+    },
+    {
+      "scenario": "navigation-Мои графы",
+      "cameraFinite": true,
+      "nodes": 24
+    },
+    {
+      "scenario": "navigation-Сообщество",
+      "cameraFinite": true,
+      "nodes": 24
+    },
+    {
+      "scenario": "navigation-Пет-проекты",
+      "cameraFinite": true,
+      "nodes": 24
+    },
+    {
+      "scenario": "navigation-Профиль",
+      "cameraFinite": true,
+      "nodes": 24
+    },
+    {
+      "scenario": "mobile-selected",
+      "canvas": {
+        "bottom": 844.0000152587891,
+        "height": 747.2000122070312,
+        "right": 390.3999938964844,
+        "width": 390.3999938964844,
+        "x": 0,
+        "y": 96.8000030517578
+      },
+      "drawer": {
+        "bottom": 774,
+        "height": 313.8125,
+        "right": 376.3999938964844,
+        "width": 362.3999938964844,
+        "x": 14,
+        "y": 460.1875
+      },
+      "drawerInsideMap": true,
+      "edges": 30,
+      "header": {
+        "bottom": 96.8000030517578,
+        "height": 96.8000030517578,
+        "right": 390.3999938964844,
+        "width": 390.3999938964844,
+        "x": 0,
+        "y": 0
+      },
+      "horizontalOverflow": false,
+      "nodes": 24,
+      "selected": {
+        "bottom": 410.2437515258789,
+        "height": 127.4000015258789,
+        "right": 258.9000015258789,
+        "width": 127.4000015258789,
+        "x": 131.5,
+        "y": 282.84375
+      },
+      "sidebarCount": 0,
+      "verticalOverflow": false,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "scenario": "rapid-switch",
+      "nodes": 24
+    },
+    {
+      "scenario": "desktop-selected",
+      "canvas": {
+        "bottom": 900.0000152587891,
+        "height": 835.2000122070312,
+        "right": 1440,
+        "width": 1440,
+        "x": 0,
+        "y": 64.80000305175781
+      },
+      "drawer": {
+        "bottom": 824.0000152587891,
+        "height": 647.2000122070312,
+        "right": 1416,
+        "width": 360,
+        "x": 1056,
+        "y": 176.8000030517578
+      },
+      "drawerInsideMap": true,
+      "edges": 30,
+      "header": {
+        "bottom": 64.80000305175781,
+        "height": 64.80000305175781,
+        "right": 1440,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "horizontalOverflow": false,
+      "nodes": 24,
+      "selected": {
+        "bottom": 563.6000137329102,
+        "height": 127.4000015258789,
+        "right": 594.7001113891602,
+        "width": 127.4000015258789,
+        "x": 467.3001098632813,
+        "y": 436.2000122070313
+      },
+      "sidebarCount": 0,
+      "verticalOverflow": false,
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      }
+    },
+    {
+      "scenario": "default-viewport-restored",
+      "canvas": {
+        "bottom": 668.0000152587891,
+        "height": 571.2000122070312,
+        "right": 541.6000366210938,
+        "width": 541.6000366210938,
+        "x": 0,
+        "y": 96.8000030517578
+      },
+      "drawer": {
+        "bottom": 598.0000152587891,
+        "height": 239.90000915527344,
+        "right": 527.6000366210938,
+        "width": 513.6000366210938,
+        "x": 14,
+        "y": 358.1000061035156
+      },
+      "drawerInsideMap": true,
+      "edges": 30,
+      "header": {
+        "bottom": 96.8000030517578,
+        "height": 96.8000030517578,
+        "right": 541.6000366210938,
+        "width": 541.6000366210938,
+        "x": 0,
+        "y": 0
+      },
+      "horizontalOverflow": false,
+      "nodes": 24,
+      "selected": {
+        "bottom": 338.59232330322266,
+        "height": 75.3846206665039,
+        "right": 308.4923324584961,
+        "width": 75.3846206665039,
+        "x": 233.1077117919922,
+        "y": 263.20770263671875
+      },
+      "sidebarCount": 0,
+      "verticalOverflow": false,
+      "viewport": {
+        "height": 668,
+        "width": 542
+      }
+    }
+  ],
+  "manual": {
+    "vertexClick": true,
+    "groupTabs": true,
+    "keyboardTabs": true,
+    "closeButton": true,
+    "escape": true,
+    "apiPrerequisitesPreserved": true,
+    "allModuleLinks": true,
+    "rapidCareerSwitch": true,
+    "viewportOverrideReset": true
+  },
+  "screenshots": [
+    "workspace-desktop.png",
+    "workspace-mobile.png",
+    "workspace-current.png"
+  ]
+}

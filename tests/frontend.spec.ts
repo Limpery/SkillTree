@@ -6,6 +6,20 @@ async function ready(page: Page, role = '') {
   await expect(map(page)).toHaveAttribute('data-active-career', role);
   await expect(map(page)).toHaveAttribute('aria-busy', 'false');
 }
+async function expectMapNotPainted(page: Page) {
+  // Check actual descendant visibility: React Flow can override a hidden ancestor.
+  const painted = await page.locator('.react-flow__node, .react-flow__edge, .map-toolbar, .node-drawer, .viewport-controls').evaluateAll(elements =>
+    elements.filter(element => {
+      if (getComputedStyle(element).visibility !== 'visible') return false;
+      for (let ancestor: Element | null = element; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor);
+        if (style.display === 'none' || Number(style.opacity) === 0) return false;
+      }
+      return true;
+    }).length,
+  );
+  expect(painted).toBe(0);
+}
 test.beforeEach(async ({ page }) => { await page.goto('/'); await ready(page); });
 
 test('обзор содержит только начало и две специальности без колец и полей', async ({ page }) => {
@@ -21,7 +35,8 @@ test('нажатие специальности раскрывает тольк�
   await expect(page.locator('[data-topic-id]')).toHaveCount(24);
   await expect(page.locator('[data-topic-id="group:react"]')).toHaveCount(1);
   await expect(page.locator('[data-topic-id="group:vue"]')).toHaveCount(0);
-  await expect(page.getByTestId('detail-panel')).toContainText('51');
+  await expect(map(page).getByRole('heading', { name: 'Middle React-разработчик', exact: true })).toBeVisible();
+  await expect(page.getByTestId('detail-panel')).toHaveCount(0);
 });
 
 test('смена специальности удаляет предыдущие технологии и подбирает новый масштаб', async ({ page }) => {
@@ -99,4 +114,74 @@ test('поиск на узком экране не создаёт горизон
   await ready(page, 'role:middle-vue');
   await expect(page.getByTestId('selected-title')).toHaveText('Vue с TypeScript');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  const panel = await page.getByTestId('detail-panel').boundingBox();
+  const canvas = await map(page).boundingBox();
+  await expect.poll(async () => (await page.locator('[data-topic-id="group:vue"]').boundingBox())!.y + (await page.locator('[data-topic-id="group:vue"]').boundingBox())!.height).toBeLessThan(panel!.y);
+  expect(panel!.y + panel!.height).toBeLessThanOrEqual(canvas!.y + canvas!.height);
+});
+
+test('карта заполняет экран под навигацией, карточка открывается внутри карты', async ({ page }) => {
+  await expect(page.locator('.sidebar, .page-heading, .page-footer')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Модули платформы' }).getByRole('link')).toHaveCount(6);
+  const canvas = await map(page).boundingBox();
+  const header = await page.locator('.platform-header').boundingBox();
+  const viewport = page.viewportSize()!;
+  expect(canvas!.x).toBeCloseTo(0, 1);
+  expect(canvas!.width).toBeCloseTo(viewport.width, 1);
+  expect(canvas!.y).toBeCloseTo(header!.height, 1);
+  expect(canvas!.y + canvas!.height).toBeCloseTo(viewport.height, 1);
+  await page.getByRole('textbox', { name: 'Найти компетенцию' }).fill('эффекты');
+  await page.getByRole('textbox', { name: 'Найти компетенцию' }).press('Enter');
+  await ready(page, 'role:middle-react');
+  const panel = map(page).getByTestId('detail-panel');
+  await expect(panel).toBeVisible();
+  const drawer = await panel.boundingBox();
+  expect(drawer!.x + drawer!.width).toBeLessThanOrEqual(canvas!.width);
+  await expect.poll(async () => { const node = await page.locator('[data-topic-id="group:react"]').boundingBox(); return node!.x + node!.width; }).toBeLessThan(drawer!.x);
+  await panel.getByRole('button', { name: 'Закрыть карточку', exact: true }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+});
+
+test('другие модули полностью скрывают карту и сохраняют выбранную тему при возврате', async ({ page }) => {
+  const search = page.getByRole('textbox', { name: 'Найти компетенцию' });
+  await search.fill('Vue с TypeScript');
+  await search.press('Enter');
+  await ready(page, 'role:middle-vue');
+  await expect(page.getByTestId('selected-title')).toHaveText('Vue с TypeScript');
+  const canvas = await map(page).boundingBox();
+  const navigation = page.getByRole('navigation', { name: 'Модули платформы' });
+  for (const name of ['Мои графы', 'Сообщество', 'Курсы', 'Пет-проекты', 'Профиль']) {
+    await navigation.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+    await expect(navigation.getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expectMapNotPainted(page);
+    const retained = await page.locator('.career-map').boundingBox();
+    expect(retained!.width).toBeCloseTo(canvas!.width, 1);
+    expect(retained!.height).toBeCloseTo(canvas!.height, 1);
+    expect(await page.locator('.module-placeholder').evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      return [[.1, .1], [.5, .5], [.9, .9]].every(([x, y]) => element.contains(document.elementFromPoint(bounds.x + bounds.width * x, bounds.y + bounds.height * y)));
+    })).toBe(true);
+  }
+  await page.getByRole('link', { name: 'Вернуться к карте' }).click();
+  await ready(page, 'role:middle-vue');
+  await expect(map(page)).toBeVisible();
+  await expect(page.locator('[data-topic-id="group:vue"]')).toHaveCount(1);
+  await expect(page.getByTestId('selected-title')).toHaveText('Vue с TypeScript');
+  await expect(page.getByLabel('Масштаб', { exact: true })).not.toContainText('NaN');
+  await expect(page.locator('.react-flow__viewport')).not.toHaveAttribute('style', /NaN/);
+});
+
+test('переключение модуля во время построения ветки не оставляет вершины на новом экране', async ({ page }) => {
+  await switcher(page).getByRole('button', { name: 'React · Middle', exact: true }).click();
+  const navigation = page.getByRole('navigation', { name: 'Модули платформы' });
+  await navigation.getByRole('link', { name: 'Курсы', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Курсы', exact: true })).toBeVisible();
+  await expect(page.locator('.career-map')).toHaveAttribute('aria-busy', 'false');
+  await expectMapNotPainted(page);
+  await navigation.getByRole('link', { name: 'Карта', exact: true }).click();
+  await ready(page, 'role:middle-react');
+  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('.react-flow__viewport')).not.toHaveAttribute('style', /NaN/);
 });

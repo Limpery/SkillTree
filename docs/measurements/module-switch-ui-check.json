@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-20",
+  "method": "Manual CUA browser checks; standalone Playwright suite not run",
+  "reproducedCause": {
+    "ancestorVisibility": "hidden",
+    "nodeInlineVisibility": "visible",
+    "mapOpacity": "1",
+    "moduleBackground": "transparent"
+  },
+  "checks": [
+    {
+      "scenario": "React → Курсы",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Курсы",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "viewport": "transform: translate(452.038px, 335.326px) scale(0.100361);"
+      }
+    },
+    {
+      "scenario": "Vue с открытой карточкой → Мои графы",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Мои графы",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "selected": "Vue с TypeScript",
+        "viewport": "transform: translate(-538.271px, 151.24px) scale(0.384615);"
+      }
+    },
+    {
+      "scenario": "Vue с открытой карточкой → Сообщество",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Сообщество",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "selected": "Vue с TypeScript",
+        "viewport": "transform: translate(-538.271px, 151.24px) scale(0.384615);"
+      }
+    },
+    {
+      "scenario": "Vue с открытой карточкой → Курсы",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Курсы",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "selected": "Vue с TypeScript",
+        "viewport": "transform: translate(-538.271px, 151.24px) scale(0.384615);"
+      }
+    },
+    {
+      "scenario": "Vue с открытой карточкой → Пет-проекты",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Пет-проекты",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "selected": "Vue с TypeScript",
+        "viewport": "transform: translate(-538.271px, 151.24px) scale(0.384615);"
+      }
+    },
+    {
+      "scenario": "Vue с открытой карточкой → Профиль",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Профиль",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "selected": "Vue с TypeScript",
+        "viewport": "transform: translate(-538.271px, 151.24px) scale(0.384615);"
+      }
+    },
+    {
+      "scenario": "Смена модуля во время смены Vue → React",
+      "phaseAtModuleSwitch": "entering",
+      "result": {
+        "canvas": {
+          "bottom": 668.0000152587891,
+          "height": 571.2000122070312,
+          "left": 0,
+          "right": 541.6000366210938,
+          "top": 96.8000030517578,
+          "width": 541.6000366210938,
+          "x": 0,
+          "y": 96.8000030517578
+        },
+        "coversMap": true,
+        "edges": 30,
+        "heading": "Курсы",
+        "mapInert": true,
+        "mapOpacity": "0",
+        "nodes": 24,
+        "paintedGraphParts": 0,
+        "viewport": "transform: translate(452.038px, 335.326px) scale(0.100361);"
+      }
+    }
+  ]
+}

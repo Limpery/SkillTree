@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-20",
+  "method": "Manual CUA browser checks",
+  "checks": [
+    {
+      "hiddenSymbols": 0,
+      "hiddenTitles": [],
+      "nodes": 24,
+      "outsidePositionedTitles": 0,
+      "outsideTitles": [],
+      "zoom": "10%"
+    },
+    {
+      "hiddenSymbols": 0,
+      "hiddenTitles": [],
+      "nodes": 24,
+      "outsidePositionedTitles": 0,
+      "outsideTitles": [],
+      "zoom": "25%"
+    },
+    {
+      "hiddenSymbols": 0,
+      "hiddenTitles": [],
+      "nodes": 24,
+      "outsidePositionedTitles": 0,
+      "outsideTitles": [],
+      "zoom": "36%"
+    }
+  ]
+}

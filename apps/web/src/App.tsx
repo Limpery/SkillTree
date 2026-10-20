@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Background, Handle, MarkerType, Position, ReactFlow, useNodesInitialized, useReactFlow, type Edge, type EdgeProps, type Node, type NodeProps } from '@xyflow/react';
-import { ArrowUpRight, BookOpen, ChevronRight, Compass, ExternalLink, GitBranch, Layers, Maximize2, Minus, Network, PanelRightClose, Plus, Search, Target, X } from 'lucide-react';
+import { ArrowUpRight, BookOpen, ChevronRight, Code2, Compass, ExternalLink, FolderKanban, GitBranch, GraduationCap, Layers, Maximize2, Minus, Network, Plus, Search, UserRound, Users, X } from 'lucide-react';
 import type { KnowledgeTopic } from '@skilltree/graph-domain/middle-react';
 import { createFrontendCatalog, trackMembership } from '@skilltree/graph-domain/frontend-catalog';
 import { KNOWLEDGE_NODE } from '@skilltree/graph-domain/knowledge-layout';
@@ -8,22 +8,30 @@ import { fitCareerScene, type CareerNode } from '@skilltree/graph-domain/career-
 import { planForRole } from '@skilltree/graph-domain';
 import { useCareerScene } from './useCareerScene';
 
-type TopicNode = Node<{ item: CareerNode; selected: boolean; related: boolean; muted: boolean; active: boolean; branch: string; zoom: number }, 'knowledge'>;
+type TopicNode = Node<{ item: CareerNode; selected: boolean; related: boolean; muted: boolean; active: boolean; branch: string }, 'knowledge'>;
 const nodeOrigin: [number, number] = [.5, .5];
 const nodeTypes = { knowledge: memo(KnowledgeNode) }, edgeTypes = { knowledge: memo(KnowledgeConnection) };
 const normalize = (value: string) => value.toLocaleLowerCase('ru').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 const motionDuration = (ms: number) => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms;
 const word = (count: number) => count % 10 === 1 && count % 100 !== 11 ? 'тема' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'темы' : 'тем';
+const modules = [
+  { id: 'map', label: 'Карта', icon: Network },
+  { id: 'graphs', label: 'Мои графы', icon: FolderKanban },
+  { id: 'community', label: 'Сообщество', icon: Users },
+  { id: 'courses', label: 'Курсы', icon: GraduationCap },
+  { id: 'projects', label: 'Пет-проекты', icon: Code2 },
+  { id: 'profile', label: 'Профиль', icon: UserRound },
+] as const;
+const currentModule = () => modules.find(module => window.location.hash === '#/' + module.id)?.id ?? 'map';
 
 function KnowledgeNode({ data }: NodeProps<TopicNode>) {
-  const { item, zoom } = data, hub = item.start || item.careerId;
-  const landmark = item.memberIds.some(id => ['react', 'vue', 'middle-project', 'vue-project'].includes(id));
-  const style = { '--inverse-zoom': 1 / zoom, '--reveal-delay': `${Math.min(260, item.depth * 30)}ms` } as CSSProperties;
-  return <div className={'knowledge-node branch-' + data.branch + (hub ? ' career-hub' : ' detail-node') + (item.start ? ' start-node' : '') + (item.careerId ? ' profession-node' : '') + (landmark ? ' is-landmark' : '') + (data.active ? ' is-active-career' : '') + (data.selected ? ' is-selected' : '') + (data.related ? ' is-related' : '') + (data.muted ? ' is-muted' : '') + (item.memberIds.length > 1 ? ' is-group' : '')} style={style} data-topic-id={item.id} data-member-ids={item.memberIds.join(',')} data-career-id={item.careerId} data-branch={data.branch}>
+  const { item } = data, hub = item.start || item.careerId;
+  const style = { '--reveal-delay': `${Math.min(260, item.depth * 30)}ms` } as CSSProperties;
+  return <div className={'knowledge-node branch-' + data.branch + (hub ? ' career-hub' : ' detail-node') + (item.start ? ' start-node' : '') + (item.careerId ? ' profession-node' : '') + (data.active ? ' is-active-career' : '') + (data.selected ? ' is-selected' : '') + (data.related ? ' is-related' : '') + (data.muted ? ' is-muted' : '') + (item.memberIds.length > 1 ? ' is-group' : '')} style={style} data-topic-id={item.id} data-member-ids={item.memberIds.join(',')} data-career-id={item.careerId} data-branch={data.branch}>
     <Handle type="target" position={Position.Left} className="knowledge-handle" isConnectable={false} />
     <button className="knowledge-orb nodrag" type="button" title={item.label} aria-label={item.label}>
       <span className="knowledge-symbol">{item.start ? <GitBranch size={28} /> : item.careerId ? <Compass size={28} /> : item.short}</span>
-      <span className={'knowledge-title' + (item.label.split(/\s+/).some(part => part.length > 14) ? ' has-long-word' : '')}>{hub ? <><strong>{item.start ? 'Начало' : item.short}</strong><small>{item.start ? 'Выбери цель' : `${item.count} ${word(item.count!)}`}</small></> : zoom < .35 ? item.short : item.label}</span>
+      <span className={'knowledge-title' + (item.label.split(/\s+/).some(part => part.length > 14) ? ' has-long-word' : '')}>{hub ? <><strong>{item.start ? 'Начало' : item.short}</strong><small>{item.start ? 'Выбери цель' : `${item.count} ${word(item.count!)}`}</small></> : item.label}</span>
       {!hub && item.memberIds.length > 1 && <span className="group-count"><Layers size={12} />{item.memberIds.length}</span>}
     </button>
     <Handle type="source" position={Position.Right} className="knowledge-handle" isConnectable={false} />
@@ -40,12 +48,13 @@ export function App() {
   const membership = useMemo(() => trackMembership(catalog), [catalog]);
   const plans = useMemo(() => new Map(catalog.roles.map(role => [role.id, new Set(planForRole(catalog, role.id).topicIds)])), [catalog]);
   const [selectedId, setSelectedId] = useState<string>();
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [activeModule, setActiveModule] = useState(currentModule);
   const [query, setQuery] = useState(''), [searchOpen, setSearchOpen] = useState(false);
   const [zoom, setZoom] = useState(.6);
   const [tab, setTab] = useState<'overview' | 'connections'>('overview');
   const flow = useReactFlow<TopicNode>(), initialized = useNodesInitialized({ includeHiddenNodes: true });
   const graphElement = useRef<HTMLElement>(null), detailElement = useRef<HTMLElement>(null);
+  const toolbarElement = useRef<HTMLDivElement>(null);
   const selectionVersion = useRef(0);
   const selected = selectedId ? topics.get(selectedId) : undefined;
   const selectedView = scene?.nodes.find(node => selectedId && node.memberIds.includes(selectedId));
@@ -60,12 +69,42 @@ export function App() {
   const fitScene = useCallback(() => {
     if (!scene || !graphElement.current) return;
     const { clientWidth, clientHeight } = graphElement.current;
+    if (!clientWidth || !clientHeight) return;
     void flow.setViewport(fitCareerScene(scene.bounds, clientWidth, clientHeight), { duration: motionDuration(600) });
   }, [scene, flow]);
+  const focusSelected = useCallback(() => {
+    if (!selectedId || !scene || !graphElement.current || activeModule !== 'map' || phase !== 'idle') return;
+    const id = scene.nodeIdByTopic.get(selectedId), point = id ? scene.positions[id] : undefined;
+    if (!point) return;
+    const canvas = graphElement.current.getBoundingClientRect(), toolbar = toolbarElement.current?.getBoundingClientRect();
+    if (!canvas.width || !canvas.height) return;
+    const left = 24, top = toolbar ? toolbar.bottom - canvas.top + 20 : 100;
+    let right = canvas.width - 24, bottom = canvas.height - 76;
+    const drawer = detailElement.current?.getBoundingClientRect();
+    if (drawer) {
+      if (drawer.width > canvas.width * .7) bottom = Math.min(bottom, drawer.top - canvas.top - 18);
+      else right = Math.min(right, drawer.left - canvas.left - 18);
+    }
+    const width = Math.max(100, right - left), height = Math.max(100, bottom - top);
+    const currentZoom = flow.getZoom();
+    const nextZoom = Math.min(1, Math.max(.65, Number.isFinite(currentZoom) ? currentZoom : .65), width / 260, height / 260);
+    void flow.setViewport({ x: left + width / 2 - point.x * nextZoom, y: top + height / 2 - point.y * nextZoom, zoom: nextZoom }, { duration: motionDuration(350) });
+  }, [selectedId, scene, flow, phase, activeModule]);
   // Bounds are known before DOM measurement; fit once per scene to avoid camera restarts.
-  useEffect(() => { if (scene) fitScene(); }, [scene, fitScene]);
+  useEffect(() => { if (scene && activeModule === 'map') fitScene(); }, [scene, fitScene, activeModule]);
   const resizeAction = useRef(fitScene);
-  useEffect(() => { resizeAction.current = fitScene; }, [fitScene]);
+  useEffect(() => { resizeAction.current = selectedId ? focusSelected : fitScene; }, [fitScene, focusSelected, selectedId]);
+  useEffect(() => {
+    const update = () => { setActiveModule(currentModule()); setSearchOpen(false); };
+    window.addEventListener('hashchange', update);
+    return () => window.removeEventListener('hashchange', update);
+  }, []);
+  const closeTopic = useCallback(() => { selectionVersion.current++; setSelectedId(undefined); setSearchOpen(false); }, []);
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') closeTopic(); };
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, [closeTopic]);
   useEffect(() => {
     const element = graphElement.current; if (!element) return;
     let width = element.clientWidth, height = element.clientHeight, frame = 0;
@@ -76,12 +115,10 @@ export function App() {
     });
     observer.observe(element); return () => { observer.disconnect(); cancelAnimationFrame(frame); };
   }, []);
-  useEffect(() => { detailElement.current?.scrollTo({ top: 0 }); }, [selectedId, drawerOpen]);
+  useEffect(() => { detailElement.current?.scrollTo({ top: 0 }); }, [selectedId]);
   const selectTopic = useCallback((id: string) => {
-    setSelectedId(id); setDrawerOpen(true); setTab('overview'); setQuery(''); setSearchOpen(false);
-    const nodeId = scene?.nodeIdByTopic.get(id), position = nodeId ? scene?.positions[nodeId] : undefined;
-    if (position) void flow.setCenter(position.x, position.y, { zoom: Math.max(.65, Math.min(flow.getZoom(), 1)), duration: motionDuration(350) });
-  }, [scene, flow]);
+    setSelectedId(id); setTab('overview'); setQuery(''); setSearchOpen(false);
+  }, []);
   const openCareer = useCallback(async (roleId?: string) => {
     const same = scene?.roleId === roleId;
     selectionVersion.current++; setSelectedId(undefined); setQuery(''); setSearchOpen(false);
@@ -98,14 +135,14 @@ export function App() {
     const version = ++selectionVersion.current;
     setSelectedId(undefined); setQuery(''); setSearchOpen(false);
     const changed = await switchTo(role.id);
-    if (changed && version === selectionVersion.current) { setSelectedId(topicId); setDrawerOpen(true); setTab('overview'); }
+    if (changed && version === selectionVersion.current) { setSelectedId(topicId); setTab('overview'); }
   }, [catalog, scene, topics, plans, openCareer, selectTopic, switchTo, phase, requestedRoleId]);
-  // A search that opens another career focuses its topic after that scene has committed.
+  // Focus in the unobscured part of the canvas after the in-map drawer has mounted.
   useEffect(() => {
-    if (!selectedId || phase !== 'idle') return;
-    const id = scene?.nodeIdByTopic.get(selectedId), position = id ? scene?.positions[id] : undefined;
-    if (position) void flow.setCenter(position.x, position.y, { zoom: Math.max(.65, flow.getZoom()), duration: motionDuration(350) });
-  }, [selectedId, scene, phase, flow]);
+    if (!selectedId || phase !== 'idle' || activeModule !== 'map') return;
+    const frame = requestAnimationFrame(focusSelected);
+    return () => cancelAnimationFrame(frame);
+  }, [selectedId, phase, activeModule, focusSelected]);
   const searchResults = useMemo(() => {
     const text = normalize(query); if (!text) return [];
     const score = (topic: KnowledgeTopic) => Math.max(...[topic.label, topic.short, ...(catalog.roles.find(role => role.id === topic.id)?.aliases ?? [])].map(normalize).map(value => value === text ? 100 : value.startsWith(text) ? 60 : value.includes(text) ? 20 : 0));
@@ -118,9 +155,9 @@ export function App() {
   const displayNodes = useMemo<TopicNode[]>(() => scene?.nodes.map(item => ({
     id: item.id, type: 'knowledge', position: scene.positions[item.id], width: KNOWLEDGE_NODE.width, height: KNOWLEDGE_NODE.height,
     style: { width: KNOWLEDGE_NODE.width, height: KNOWLEDGE_NODE.height }, draggable: false, connectable: false, ariaLabel: item.label,
-    data: { item, zoom, branch: branchFor(item.memberIds), active: item.careerId === scene.roleId && Boolean(scene.roleId), selected: Boolean(selectedId && item.memberIds.includes(selectedId)),
+    data: { item, branch: branchFor(item.memberIds), active: item.careerId === scene.roleId && Boolean(scene.roleId), selected: Boolean(selectedId && item.memberIds.includes(selectedId)),
       related: item.memberIds.some(id => neighbours?.has(id)), muted: Boolean(neighbours) && !item.start && !item.careerId && !item.memberIds.some(id => neighbours?.has(id)) },
-  })) ?? [], [scene, zoom, branchFor, selectedId, neighbours]);
+  })) ?? [], [scene, branchFor, selectedId, neighbours]);
   const displayEdges = useMemo<Edge[]>(() => scene ? scene.edges.map(edge => {
     const source = scene.nodes.find(node => node.id === edge.source)!, target = scene.nodes.find(node => node.id === edge.target)!;
     const navigation = scene.steps.find(step => step.id === edge.id)?.kind === 'navigation';
@@ -135,45 +172,43 @@ export function App() {
   const busy = !scene || !initialized || phase !== 'idle';
   const activeCareer = scene?.roleId ? topics.get(scene.roleId) : undefined;
 
-  return <div className="app-shell middle-workspace">
-    <aside className="sidebar"><a className="brand" href="/" aria-label="SkillTree — главная"><span className="brand-symbol"><GitBranch size={25} strokeWidth={1.6} /></span><span>skilltree<span className="brand-period">.</span></span></a><div className="workspace-label">ТВОЯ ТРАЕКТОРИЯ</div>
-      <nav className="main-nav" aria-label="Основная навигация"><button className="nav-item nav-active" onClick={() => void openCareer()}><Network size={18} /><span>Выбор профессии</span></button>{catalog.tracks.map(track => <button key={track.id} className="nav-item" onClick={() => void openCareer(track.roleId)}><Target size={18} /><span>{track.label}</span></button>)}</nav>
-      <div className="sidebar-note"><span className="tiny-sprout">✳</span><p>Одна цель.<br />Полная траектория.<br /><em>Твой следующий шаг.</em></p></div><div className="prototype-card"><span className="status-dot" />React + Vue<span>Выбери свой путь</span></div><div className="profile-preview"><span className="avatar">S</span><div><strong>Пространство SkillTree</strong><small>Карта профессионального развития</small></div></div>
-    </aside>
-    <main className="main-space"><header className="topbar"><div className="breadcrumb">Моё развитие <ChevronRight size={13} /><span>Карта профессий</span></div><div className="topbar-right"><span className="online-dot" />От цели к знаниям <GitBranch size={14} /></div></header>
-      <section className="page-heading"><div><div className="eyebrow">ВЫБЕРИ, КЕМ ХОЧЕШЬ СТАТЬ</div><h1>Одна цель. <em>Твоя траектория.</em></h1><p>Нажми на специальность — её технологии появятся на карте. Переключайся и исследуй свой путь.</p></div><div className="map-counter"><span>{scene?.roleId ? scene.topicCount : catalog.roles.length}</span><div>{scene?.roleId ? 'тем в твоей' : 'специальности'}<br />{scene?.roleId ? 'траектории' : 'для старта'}</div></div></section>
-      <nav className="track-nav" aria-label="Специальности"><button aria-pressed={!requestedRoleId} onClick={() => void openCareer()}><GitBranch size={15} />Выбор профессии</button>{catalog.tracks.map(track => <button key={track.id} className={'track-' + track.id} aria-pressed={requestedRoleId === track.roleId} onClick={() => void openCareer(track.roleId)}><span className="track-dot" />{track.label}</button>)}<span>На карте — одна траектория</span></nav>
-      <div className="toolbar"><div className="search-wrap"><Search size={18} /><input aria-label="Найти компетенцию" placeholder="Профессия или технология…" value={query} onChange={event => { setQuery(event.target.value); setSearchOpen(true); }} onFocus={() => setSearchOpen(true)} onKeyDown={event => { if (event.key === 'Enter' && searchResults[0]) void choose(searchResults[0].id); if (event.key === 'Escape') setSearchOpen(false); }} /><kbd>↵</kbd>
-        {searchOpen && query && <div className="search-results" role="listbox" aria-label="Результаты поиска">{searchResults.length ? searchResults.map(topic => <button role="option" aria-selected={false} key={topic.id} onClick={() => void choose(topic.id)}><BookOpen size={15} /><div>{topic.label}<small>{topic.kind === 'role' ? 'Специальность' : catalog.stages.find(stage => stage.id === topic.stageId)?.title}</small></div><ArrowUpRight size={14} /></button>) : <div className="search-empty">Попробуй другое название темы.</div>}</div>}</div>
-        <button className="overview-button" onClick={fitScene}><Maximize2 size={16} />Вписать в экран</button><button className="icon-button drawer-toggle" onClick={() => setDrawerOpen(value => !value)} aria-label={drawerOpen ? 'Скрыть карточку' : 'Показать карточку'}><PanelRightClose size={18} /></button></div>
-      <div className={'workspace' + (!drawerOpen ? ' drawer-hidden' : '')}>
-        <section ref={graphElement} className={'graph-surface graph-knowledge career-map' + (scene?.roleId ? ' has-career' : '') + ' scene-' + phase + (zoom < .35 ? ' scene-overview' : '') + (zoom < .12 ? ' scene-small' : '')} aria-label="Карта траектории" aria-busy={busy} data-active-career={scene?.roleId ?? ''} data-phase={phase}>
-          <div className="canvas-heading"><span className="canvas-kicker">{selected?.label ?? activeCareer?.label ?? 'НАЧНИ С ВЫБОРА ПРОФЕССИИ'}</span><span className="canvas-badge"><GitBranch size={12} />{scene?.roleId ? `${scene.topicCount} ${word(scene.topicCount)}` : '2 специальности'}</span></div>
-          {error && <div className="graph-message" role="alert">{error}</div>}
-          {busy && <div className="scene-status is-visible" role="status" aria-live="polite">{phase === 'leaving' ? 'Скрываем предыдущую траекторию…' : phase === 'preparing' ? 'Прокладываем путь…' : phase === 'entering' ? 'Раскрываем траекторию…' : 'Подготавливаем карту…'}</div>}
-          <ReactFlow<TopicNode> colorMode="dark" nodes={displayNodes} edges={displayEdges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} nodeOrigin={nodeOrigin} onNodeClick={(_event, node) => void choose(node.id)} onMove={(_event, viewport) => setZoom(viewport.zoom)} nodesDraggable={false} nodesConnectable={false} nodesFocusable={false} edgesFocusable={false} elementsSelectable={false} minZoom={.02} maxZoom={1.5} panOnScroll zoomOnScroll={false} zoomOnDoubleClick={false}><Background gap={30} size={1} color="var(--graph-grid)" /></ReactFlow>
-          <div className="knowledge-controls"><button onClick={() => void openCareer()}><Compass size={14} />Специальности</button><button onClick={() => { setSelectedId(undefined); fitScene(); }}><Maximize2 size={14} />{scene?.roleId ? 'Вся траектория' : 'Вся карта'}</button></div>
-          <div className="canvas-footer"><div className="legend"><span><i className="line-key" />Порядок изучения</span>{selected && <span><i className="line-key is-bright" />Соседние шаги</span>}</div><div className="viewport-controls"><button aria-label="Отдалить" onClick={() => void flow.zoomOut({ duration: motionDuration(180) })}><Minus size={16} /></button><output aria-label="Масштаб">{Math.round(zoom * 100)}%</output><button aria-label="Приблизить" onClick={() => void flow.zoomIn({ duration: motionDuration(180) })}><Plus size={16} /></button></div></div><div className="canvas-tip">{scene?.roleId ? 'От основ к проекту. Параллельные блоки входят в путь; темы открываются вкладками.' : 'Нажми на специальность, чтобы раскрыть её траекторию.'}</div>
-        </section>
-        {drawerOpen && <aside ref={detailElement} className="detail-panel knowledge-details" aria-label="Карточка компетенции" data-testid="detail-panel">
-          {selected ? <>
-            {selectedGroup && <div className="group-details"><span className="detail-section-label">ГРУППА · {selectedGroup.memberIds.length} {word(selectedGroup.memberIds.length).toUpperCase()}</span><h3>{selectedGroup.label}</h3><GroupTabs ids={selectedGroup.memberIds} topics={topics} selectedId={selected.id} choose={id => void choose(id)} /></div>}
-            <div id="group-topic-panel" role={selectedGroup ? 'tabpanel' : undefined} aria-labelledby={selectedGroup ? 'member-tab-' + selected.id : undefined}><div className="detail-topline"><span>ТВОЯ ТРАЕКТОРИЯ · ТЕМА</span><button className="icon-button" onClick={() => setSelectedId(undefined)} aria-label="Назад к траектории"><X size={16} /></button></div><div className="detail-symbol">{selected.short}</div><h2 data-testid="selected-title">{selected.label}</h2><p className="detail-description">{selected.description}</p>
+  const module = modules.find(item => item.id === activeModule)!;
+  return <div className="platform-shell">
+    <header className="platform-header">
+      <a className="brand" href="#/map" aria-label="SkillTree — главная" onClick={() => void openCareer()}><span className="brand-symbol"><GitBranch size={23} strokeWidth={1.8} /></span><span>skilltree<span className="brand-period">.</span></span></a>
+      <nav className="platform-nav" aria-label="Модули платформы">{modules.map(item => <a key={item.id} href={'#/' + item.id} aria-current={activeModule === item.id ? 'page' : undefined}><item.icon size={17} /><span>{item.label}</span></a>)}</nav>
+    </header>
+    <div className="platform-content">
+    <main className={'map-screen' + (activeModule !== 'map' ? ' is-inactive' : '')} aria-hidden={activeModule !== 'map'} inert={activeModule !== 'map'}>
+      <section ref={graphElement} className={'career-map' + (scene?.roleId ? ' has-career' : '') + ' scene-' + phase + (zoom < .35 ? ' scene-overview' : '')} aria-label="Карта траектории" aria-busy={busy} data-active-career={scene?.roleId ?? ''} data-phase={phase}>
+        <ReactFlow<TopicNode> colorMode="dark" nodes={displayNodes} edges={displayEdges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} nodeOrigin={nodeOrigin} onNodeClick={(_event, node) => void choose(node.id)} onPaneClick={closeTopic} onMove={(_event, viewport) => { if (Number.isFinite(viewport.zoom) && viewport.zoom > 0) setZoom(viewport.zoom); }} nodesDraggable={false} nodesConnectable={false} nodesFocusable={false} edgesFocusable={false} elementsSelectable={false} minZoom={.02} maxZoom={1.5} panOnScroll zoomOnScroll={false} zoomOnDoubleClick={false}><Background gap={30} size={1} color="var(--graph-grid)" /></ReactFlow>
+        <div ref={toolbarElement} className="map-toolbar">
+          <div className="map-heading"><h1>{activeCareer?.label ?? 'Карта профессий'}</h1><nav className="track-nav" aria-label="Специальности"><button aria-pressed={!requestedRoleId} onClick={() => void openCareer()}><Compass size={15} />Специальности</button>{catalog.tracks.map(track => <button key={track.id} className={'track-' + track.id} aria-pressed={requestedRoleId === track.roleId} onClick={() => void openCareer(track.roleId)}><span className="track-dot" />{track.label}</button>)}</nav></div>
+          <div className="search-wrap"><Search size={18} /><input aria-label="Найти компетенцию" placeholder="Профессия или технология…" value={query} onChange={event => { setQuery(event.target.value); setSearchOpen(true); }} onFocus={() => setSearchOpen(true)} onKeyDown={event => { if (event.key === 'Enter' && searchResults[0]) void choose(searchResults[0].id); if (event.key === 'Escape') setSearchOpen(false); }} />{query && <button className="search-clear" aria-label="Очистить поиск" onClick={() => { setQuery(''); setSearchOpen(false); }}><X size={15} /></button>}
+            {searchOpen && query && <div className="search-results" role="listbox" aria-label="Результаты поиска">{searchResults.length ? searchResults.map(topic => <button role="option" aria-selected={false} key={topic.id} onClick={() => void choose(topic.id)}><BookOpen size={15} /><div>{topic.label}<small>{topic.kind === 'role' ? 'Специальность' : catalog.stages.find(stage => stage.id === topic.stageId)?.title}</small></div><ArrowUpRight size={14} /></button>) : <div className="search-empty">Ничего не найдено.</div>}</div>}
+          </div>
+        </div>
+        {error && <div className="graph-message" role="alert">{error}</div>}
+        {busy && <div className="scene-status" role="status" aria-live="polite">{phase === 'leaving' ? 'Скрываем траекторию…' : phase === 'entering' ? 'Раскрываем траекторию…' : 'Загружаем карту…'}</div>}
+        <p className="map-hint">{scene?.roleId ? 'Выбери вершину, чтобы открыть материалы. Параллельные блоки входят в траекторию.' : 'Выбери специальность, чтобы открыть её траекторию.'}</p>
+        <div className="viewport-controls"><button aria-label={scene?.roleId ? 'Вся траектория' : 'Вся карта'} title="Вписать в экран" onClick={() => { closeTopic(); fitScene(); }}><Maximize2 size={17} /></button><span className="control-divider" /><button aria-label="Отдалить" title="Отдалить" onClick={() => void flow.zoomOut({ duration: motionDuration(180) })}><Minus size={17} /></button><output aria-label="Масштаб">{Math.round(zoom * 100)}%</output><button aria-label="Приблизить" title="Приблизить" onClick={() => void flow.zoomIn({ duration: motionDuration(180) })}><Plus size={17} /></button></div>
+        {selected && <aside ref={detailElement} className="node-drawer" aria-label="Карточка компетенции" data-testid="detail-panel">
+          <header className="drawer-header"><div><h2 id="selected-title" data-testid="selected-title">{selected.label}</h2>{selectedGroup && <p>{selectedGroup.label}</p>}</div><button className="icon-button" onClick={closeTopic} aria-label="Закрыть карточку" title="Закрыть · Esc"><X size={19} /></button></header>
+          <div className="drawer-content">
+            {selectedGroup && <GroupTabs ids={selectedGroup.memberIds} topics={topics} selectedId={selected.id} choose={id => void choose(id)} />}
+            <div id="group-topic-panel" role={selectedGroup ? 'tabpanel' : undefined} aria-labelledby={selectedGroup ? 'member-tab-' + selected.id : undefined}>
+              <p className="detail-description">{selected.description}</p>
               <div className="detail-tabs" role="tablist" aria-label="Детали компетенции"><button role="tab" aria-selected={tab === 'overview'} onClick={() => setTab('overview')}>Обзор</button><button role="tab" aria-selected={tab === 'connections'} onClick={() => setTab('connections')}>Связи <span>{selected.prerequisites.length + nextTopics.length}</span></button></div>
-              {tab === 'overview' && <><div className="detail-section-label">ЧТО НУЖНО УМЕТЬ</div><p className="competency-outcome">{selected.outcome}</p><div className="detail-section-label">ОФИЦИАЛЬНЫЕ МАТЕРИАЛЫ</div>{selected.resources.map(material => <a className="material-link" key={material.url} href={material.url} target="_blank" rel="noreferrer"><BookOpen size={15} /><span>{material.title}</span><ExternalLink size={13} /></a>)}</>}
-              <div className="detail-section-label">ПЕРЕД ИЗУЧЕНИЕМ · ВСЕ ТЕМЫ</div>{selected.prerequisites.length ? selected.prerequisites.map(id => <TopicLink key={id} topic={topics.get(id)!} choose={id => void choose(id)} />) : <p className="quiet-copy">Можно начинать без других тем.</p>}
-              <div className="detail-section-label">СЛЕДУЮЩИЕ ТЕМЫ ЭТОЙ ТРАЕКТОРИИ</div>{nextTopics.length ? nextTopics.map(topic => <TopicLink key={topic.id} topic={topic} choose={id => void choose(id)} />) : <p className="quiet-copy">Практический результат завершает этот путь.</p>}
+              {tab === 'overview' && <><h3 className="detail-section-label">Что нужно уметь</h3><p className="competency-outcome">{selected.outcome}</p><h3 className="detail-section-label">Материалы</h3>{selected.resources.map(material => <a className="material-link" key={material.url} href={material.url} target="_blank" rel="noreferrer"><BookOpen size={15} /><span>{material.title}</span><ExternalLink size={13} /></a>)}</>}
+              <h3 className="detail-section-label">Перед изучением</h3>{selected.prerequisites.length ? selected.prerequisites.map(id => <TopicLink key={id} topic={topics.get(id)!} choose={id => void choose(id)} />) : <p className="quiet-copy">Можно начинать без других тем.</p>}
+              <h3 className="detail-section-label">Следующие темы</h3>{nextTopics.length ? nextTopics.map(topic => <TopicLink key={topic.id} topic={topic} choose={id => void choose(id)} />) : <p className="quiet-copy">Завершение траектории.</p>}
             </div>
-          </> : <><div className="detail-topline"><span>{activeCareer ? 'ТВОЯ ЦЕЛЬ' : 'ОТ ЦЕЛИ К ЗНАНИЯМ'}</span><Compass size={19} /></div><h2 className="welcome-title">{activeCareer ? activeCareer.label : <>Начни с цели.<br /><em>Открой свой путь.</em></>}</h2><p className="detail-description">{activeCareer ? activeCareer.description : 'В центре — начало. Вокруг — специальности. Выбери одну, чтобы увидеть все необходимые технологии.'}</p>
-            {activeCareer && <div className="plan-summary"><span>{scene!.topicCount}</span><div>{word(scene!.topicCount)} в траектории<small>Основы, инструменты и практика</small></div></div>}
-            <div className="branch-explanation"><GitBranch size={23} /><p>{activeCareer ? 'Короткие переходы ведут от основ к проекту. Параллельные блоки входят в траекторию. Внутри блока — темы по порядку; все предпосылки и материалы находятся в карточке.' : 'При смене специальности предыдущая ветка плавно исчезает. Новая раскрывается отдельно, а масштаб подбирается под её размер.'}</p></div>
-            {activeCareer && <><div className="detail-section-label">ОТКРЫТЬ ТЕМУ</div>{['react', 'vue', 'fetch', 'middle-project', 'vue-project'].filter(id => activePlan?.has(id)).map(id => <TopicLink key={id} topic={topics.get(id)!} choose={id => void choose(id)} />)}</>}
-            <div className="detail-section-label">ВЫБЕРИ СПЕЦИАЛЬНОСТЬ</div>{catalog.tracks.map(track => <button className="suggested-role" key={track.id} onClick={() => void openCareer(track.roleId)}><Compass size={17} /><span>{topics.get(track.roleId)!.label}</span><ArrowUpRight size={14} /></button>)}
-          </>}
-          <div className="panel-bottom-note"><Layers size={13} />{scene?.roleId ? `${scene.topicCount} ${word(scene.topicCount)} · одна открытая траектория` : 'Выбери специальность на карте'}</div>
+          </div>
         </aside>}
-      </div><footer className="page-footer"><span>SKILLTREE <span className="footer-separator">/</span> знания складываются в профессию</span><span>React + Vue · Middle</span></footer>
+      </section>
     </main>
+    {activeModule !== 'map' && <main className="module-placeholder" aria-labelledby="module-title"><module.icon size={32} strokeWidth={1.4} /><h1 id="module-title">{module.label}</h1><p>Раздел пока в разработке.</p><a href="#/map">Вернуться к карте <ArrowUpRight size={16} /></a></main>}
+    </div>
   </div>;
 }
 function TopicLink({ topic, choose }: { topic: KnowledgeTopic; choose(id: string): void }) { return <button className="topic-link" onClick={() => choose(topic.id)}><span className="small-topic-dot" />{topic.label}<ChevronRight size={14} /></button>; }
