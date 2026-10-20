@@ -1,11 +1,11 @@
 import { planForRole, type Point, type Relation } from './index.ts';
 import type { FrontendCatalog } from './frontend-catalog.ts';
 import type { KnowledgeTopic } from './middle-react.ts';
-import { KNOWLEDGE_NODE, routeKnowledgeEdges, type KnowledgeEdge } from './knowledge-layout.ts';
+import { KNOWLEDGE_NODE, type KnowledgeEdge } from './knowledge-layout.ts';
 import { learningBlocks } from './career-curriculum.ts';
 
 export const START_NODE_ID = 'map:start';
-export const CAREER_SPACING = { step: 300, parallel: 224, scatter: 30, routeClearance: 104, maxLinkLength: 640 } as const;
+export const CAREER_SPACING = { step: 300, parallel: 224, scatter: 30, maxLinkLength: 640 } as const;
 export type CareerNode = { id: string; label: string; short: string; memberIds: string[]; topic?: KnowledgeTopic; careerId?: string; start?: boolean; count?: number; depth: number };
 export type CareerRelation = Relation & { originalRelations: Relation[]; navigation?: boolean };
 export type CareerStep = { id: string; source: string; target: string; kind: 'navigation' | 'learning-step' };
@@ -45,7 +45,7 @@ export async function createCareerScene(catalog: FrontendCatalog, roleId?: strin
     nodeIdByTopic.set(role.id, role.id);
   }
   const steps: CareerStep[] = navigation.map(edge => ({ id: edge.id, source: edge.source, target: edge.target, kind: 'navigation' }));
-  if (!roleId) return { nodes, steps, edges: routeKnowledgeEdges(positions, navigation), connections: [], positions, nodeIdByTopic, bounds: boundsOf(positions), topicCount: 0 };
+  if (!roleId) return { nodes, steps, edges: steps.map(edge => straightConnection(edge, positions)), connections: [], positions, nodeIdByTopic, bounds: boundsOf(positions), topicCount: 0 };
 
   const topicIds = planForRole(catalog, roleId).topicIds, allowed = new Set(topicIds);
   const blocks = learningBlocks(catalog, topicIds);
@@ -93,7 +93,7 @@ export async function createCareerScene(catalog: FrontendCatalog, roleId?: strin
   const anchor = positions[roleId];
   const angle = Math.atan2(anchor.y, anchor.x), forward = { x: Math.cos(angle), y: Math.sin(angle) }, side = { x: -forward.y, y: forward.x };
   positionLearningSteps(layers, positions, roleId, anchor, forward, side);
-  const edges = [...routeKnowledgeEdges(positions, navigation), ...steps.filter(edge => edge.kind === 'learning-step').map(edge => orderedConnection(edge, nodes, positions, anchor, forward))];
+  const edges = steps.map(edge => straightConnection(edge, positions));
   return { roleId, nodes, edges, steps, connections, positions, nodeIdByTopic, bounds: boundsOf(positions), topicCount: allowed.size };
 }
 
@@ -147,24 +147,12 @@ function orderedSpacing(desired: { value: number; weight: number }[], gap: numbe
   return result;
 }
 
-/** Shared empty corridors keep parallel transitions ordered despite the scattered centres. */
-function orderedConnection(edge: CareerStep, nodes: CareerNode[], positions: Record<string, Point>, anchor: Point, forward: Point): KnowledgeEdge {
+/** A single segment joins the circle boundaries along the line between their centres. */
+function straightConnection(edge: CareerStep, positions: Record<string, Point>): KnowledgeEdge {
   const source = positions[edge.source], target = positions[edge.target];
-  const offset = (point: Point, amount: number) => ({ x: point.x + forward.x * amount, y: point.y + forward.y * amount });
-  const start = offset(source, KNOWLEDGE_NODE.radius), end = offset(target, -KNOWLEDGE_NODE.radius);
-  const sourceDepth = nodes.find(node => node.id === edge.source)!.depth, targetDepth = nodes.find(node => node.id === edge.target)!.depth;
-  const sourceAlong = (source.x - anchor.x) * forward.x + (source.y - anchor.y) * forward.y;
-  const targetAlong = (target.x - anchor.x) * forward.x + (target.y - anchor.y) * forward.y;
-  const exit = sourceDepth * CAREER_SPACING.step + CAREER_SPACING.routeClearance + CAREER_SPACING.scatter;
-  const entry = targetDepth * CAREER_SPACING.step - CAREER_SPACING.routeClearance - CAREER_SPACING.scatter;
-  const a = offset(source, exit - sourceAlong), b = offset(target, entry - targetAlong);
-  const c = offset(a, (entry - exit) / 2), d = offset(b, -(entry - exit) / 2);
-  const points = [start, a];
-  for (let step = 1; step <= 32; step++) {
-    const t = step / 32, u = 1 - t;
-    points.push({ x: u ** 3 * a.x + 3 * u ** 2 * t * c.x + 3 * u * t ** 2 * d.x + t ** 3 * b.x,
-      y: u ** 3 * a.y + 3 * u ** 2 * t * c.y + 3 * u * t ** 2 * d.y + t ** 3 * b.y });
-  }
-  points.push(end);
-  return { ...edge, points, path: `M ${start.x} ${start.y} L ${a.x} ${a.y} C ${c.x} ${c.y} ${d.x} ${d.y} ${b.x} ${b.y} L ${end.x} ${end.y}` };
+  const dx = target.x - source.x, dy = target.y - source.y, distance = Math.hypot(dx, dy);
+  if (distance <= KNOWLEDGE_NODE.radius * 2) throw new Error('Связанные вершины перекрываются: ' + edge.id);
+  const inset = { x: dx / distance * KNOWLEDGE_NODE.radius, y: dy / distance * KNOWLEDGE_NODE.radius };
+  const start = { x: source.x + inset.x, y: source.y + inset.y }, end = { x: target.x - inset.x, y: target.y - inset.y };
+  return { ...edge, points: [start, end], path: `M ${start.x} ${start.y} L ${end.x} ${end.y}` };
 }

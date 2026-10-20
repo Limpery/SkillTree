@@ -95,6 +95,19 @@ test('вершины отделены, линии обходят круги в �
   }
 });
 
+test('все связи — прямые отрезки от края до края кругов, включая обзор', async () => {
+  for (const scene of [await createCareerScene(catalog), ...await scenes]) for (const edge of scene.edges) {
+    assert.equal(edge.points.length, 2, edge.id);
+    const [start, end] = edge.points, source = scene.positions[edge.source], target = scene.positions[edge.target];
+    assert.match(edge.path, /^M [-\d.e]+ [-\d.e]+ L [-\d.e]+ [-\d.e]+$/i, edge.id);
+    const dx = target.x - source.x, dy = target.y - source.y, length = Math.hypot(dx, dy);
+    assert(Math.abs(Math.hypot(start.x - source.x, start.y - source.y) - KNOWLEDGE_NODE.radius) < 1e-6);
+    assert(Math.abs(Math.hypot(end.x - target.x, end.y - target.y) - KNOWLEDGE_NODE.radius) < 1e-6);
+    for (const point of edge.points) assert(Math.abs((point.x - source.x) * dy - (point.y - source.y) * dx) < 1e-6, 'Отрезок отклоняется от направления между центрами: ' + edge.id);
+    assert(Math.abs(Math.hypot(end.x - start.x, end.y - start.y) - (length - KNOWLEDGE_NODE.radius * 2)) < 1e-6);
+  }
+});
+
 test('разброс координат сохраняет порядок от основ к сложному и параллельные блоки', async () => {
   for (const scene of await scenes) {
     const anchor = scene.positions[scene.roleId!], length = Math.hypot(anchor.x, anchor.y);

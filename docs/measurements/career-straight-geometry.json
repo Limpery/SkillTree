@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-20",
+  "scenes": [
+    {
+      "role": "role:middle-react",
+      "topics": 51,
+      "nodes": 24,
+      "edges": 30,
+      "allStraight": true,
+      "maxCentreDistance": 434.7522966375564,
+      "maxSegmentLength": 274.75229663755607
+    },
+    {
+      "role": "role:middle-vue",
+      "topics": 52,
+      "nodes": 24,
+      "edges": 30,
+      "allStraight": true,
+      "maxCentreDistance": 451.134252762067,
+      "maxSegmentLength": 291.134252762067
+    }
+  ]
+}

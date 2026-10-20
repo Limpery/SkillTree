@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-20",
+  "url": "http://127.0.0.1:5175/",
+  "method": "CUA: DOM checks and visual inspection",
+  "scenes": [
+    {
+      "allStraight": true,
+      "edges": 2,
+      "nodes": 3,
+      "overflow": false,
+      "role": "overview"
+    },
+    {
+      "allStraight": true,
+      "edges": 30,
+      "nodes": 24,
+      "overflow": false,
+      "role": "role:middle-react"
+    },
+    {
+      "allStraight": true,
+      "edges": 30,
+      "nodes": 24,
+      "overflow": false,
+      "role": "role:middle-vue"
+    }
+  ],
+  "selection": {
+    "topic": "Сборка и инструменты",
+    "nodeCount": 24,
+    "edgeCount": 30,
+    "allStraight": true
+  },
+  "final": {
+    "allStraight": true,
+    "edges": 30,
+    "nodes": 24,
+    "overflow": false,
+    "role": "role:middle-react"
+  },
+  "screenshot": "career-straight-detail.png"
+}
