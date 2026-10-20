@@ -1,0 +1,91 @@
+import { test, expect } from '@playwright/test';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => window.__skillTreePrototype?.snapshot().readyKey === '0:auto');
+});
+
+test('радиальная карта и раскрытие составной группы работают в браузере', async ({ page }) => {
+  await expect(page.getByRole('heading', { name: 'Твой следующий шаг.' })).toBeVisible();
+  await expect(page.locator('[data-topic-id="group:javascript"]')).toHaveCount(1);
+  await expect(page.locator('[data-topic-id="javascript"]')).toHaveCount(0);
+  await page.locator('[data-topic-id="group:javascript"] button').click();
+  await expect(page.locator('[data-topic-id="javascript"]')).toHaveCount(1);
+  await page.locator('[data-topic-id="javascript"] button').click();
+  await expect(page.getByTestId('selected-title')).toHaveText('JavaScript');
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: 'Node.js-разработчик' })).toBeVisible();
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: 'Frontend-разработчик' })).toBeVisible();
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: 'Android-разработчик' })).toHaveCount(0);
+});
+
+test('поиск Java не выбирает JavaScript backend, общая база остаётся в пути', async ({ page }) => {
+  const search = page.getByRole('textbox', { name: 'Найти профессию или технологию' });
+  await search.fill('java');
+  await expect(page.getByRole('option').first()).toContainText('Java-разработчик');
+  await search.press('Enter');
+  await expect(page.getByTestId('selected-title')).toHaveText('Java-разработчик');
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: /Git/ })).toBeVisible();
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: /PostgreSQL/ })).toBeVisible();
+  await expect(page.getByTestId('detail-panel').getByRole('button', { name: /MySQL/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Обзор карты' }).click();
+  await expect(page.getByRole('heading', { name: /Профессия начинается/ })).toBeVisible();
+});
+
+test('100/300/800 — настоящий размер исходного набора, не число на экране', async ({ page }) => {
+  await page.evaluate(() => window.__skillTreePrototype!.dataset(800));
+  await page.waitForFunction(() => window.__skillTreePrototype?.snapshot().readyKey === '800:auto');
+  let state = await page.evaluate(() => window.__skillTreePrototype!.snapshot());
+  expect(state.canonicalCount).toBe(800); expect(state.visibleCount).toBeLessThan(100);
+  await page.evaluate(() => window.__skillTreePrototype!.mode('expanded'));
+  await page.waitForFunction(() => { const s = window.__skillTreePrototype?.snapshot(); return s?.readyKey === '800:expanded' && s.visibleCount === 800; });
+  state = await page.evaluate(() => window.__skillTreePrototype!.snapshot());
+  expect(state.visibleCount).toBe(800); expect(state.renderedCount).toBeGreaterThan(750);
+});
+
+test('на узком экране нет горизонтального переполнения, карточка доступна', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: 'Node.js-разработчик', exact: true }).click();
+  await expect(page.getByTestId('selected-title')).toHaveText('Node.js-разработчик');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+});
+
+test('при увеличении раскрываются соседние группы, а не все 800 вершин сразу', async ({ page }) => {
+  await page.evaluate(() => window.__skillTreePrototype!.dataset(800));
+  await page.waitForFunction(() => window.__skillTreePrototype?.snapshot().readyKey === '800:auto');
+  const collapsed = await page.evaluate(() => window.__skillTreePrototype!.snapshot().visibleCount);
+  await page.evaluate(() => window.__skillTreePrototype!.viewport(350, 1050, 1.1));
+  await page.waitForFunction(initial => { const s = window.__skillTreePrototype?.snapshot(); return Boolean(s && s.visibleCount > initial && s.visibleCount < 800); }, collapsed);
+  const close = await page.evaluate(() => window.__skillTreePrototype!.snapshot().visibleCount);
+  expect(close).toBeLessThan(800);
+  await page.evaluate(() => window.__skillTreePrototype!.viewport(350, 300, .4));
+  await page.waitForFunction(count => window.__skillTreePrototype?.snapshot().visibleCount === count, collapsed);
+});
+
+test('React-разработчик получает последовательные шаги вместо веера связей', async ({ page }) => {
+  const search = page.getByRole('textbox', { name: 'Найти профессию или технологию' });
+  await search.fill('react');
+  await search.press('Enter');
+  await expect(page.getByTestId('selected-title')).toHaveText('React-разработчик');
+  await expect(page.getByRole('region', { name: 'Последовательная траектория обучения' })).toBeVisible();
+  const ids = await page.locator('.graph-route [data-topic-id]').evaluateAll(elements => elements.map(element => element.getAttribute('data-topic-id')));
+  expect(ids).toEqual(['git', 'http', 'html', 'css', 'programming', 'javascript', 'typescript', 'react', 'role:react']);
+  await expect(page.locator('.graph-route .react-flow__edge')).toHaveCount(ids.length - 1);
+  const geometry = await page.locator('.graph-route .topic-orb').evaluateAll(elements => elements.map(element => { const box = element.getBoundingClientRect(); return { x: box.x + box.width / 2, top: box.top, bottom: box.bottom }; }));
+  for (let i = 1; i < geometry.length; i++) {
+    expect(Math.abs(geometry[i].x - geometry[0].x)).toBeLessThan(1);
+    expect(geometry[i].top).toBeGreaterThan(geometry[i - 1].bottom + 10);
+  }
+  await page.getByTestId('detail-panel').getByRole('button', { name: /Git/ }).click();
+  await expect(page.getByTestId('selected-title')).toHaveText('Git');
+  await expect(page.locator('.graph-route .react-flow__edge')).toHaveCount(ids.length - 1);
+  await page.getByRole('button', { name: 'Обзор карты' }).click();
+  await expect(page.getByRole('region', { name: 'Радиальная карта технологий' })).toBeVisible();
+});
+
+test('просмотр общей технологии сохраняет выбранную профессию', async ({ page }) => {
+  await page.getByRole('button', { name: 'Node.js-разработчик', exact: true }).click();
+  await page.getByTestId('detail-panel').getByRole('button', { name: /Git/ }).click();
+  await expect(page.getByTestId('selected-title')).toHaveText('Git');
+  expect(await page.evaluate(() => window.__skillTreePrototype!.snapshot().roleId)).toBe('role:node');
+  await expect(page.locator('.focus-pill')).toContainText('Node.js-разработчик');
+});

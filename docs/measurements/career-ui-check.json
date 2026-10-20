@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-20",
+  "method": "CUA, existing in-app browser tab, manual scenarios",
+  "viewport": {
+    "width": 394,
+    "height": 668
+  },
+  "overviewNodes": 3,
+  "react": {
+    "topics": 51,
+    "nodes": 43,
+    "edges": 42
+  },
+  "vue": {
+    "topics": 52,
+    "nodes": 44,
+    "edges": 43
+  },
+  "verified": [
+    "specialty node click",
+    "leaving phase on career switch",
+    "Vue replaces React technologies",
+    "rapid React/Vue/React switches keep last request",
+    "search opens another career and the requested group tab",
+    "keyboard group navigation",
+    "return to 3-node overview",
+    "actual-bounds fit and no horizontal overflow"
+  ],
+  "standalonePlaywrightRun": false
+}

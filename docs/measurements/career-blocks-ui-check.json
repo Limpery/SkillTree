@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-20",
+  "url": "http://127.0.0.1:5175/",
+  "method": "Manual UI checks through CUA in the existing tab",
+  "overviewNodes": 3,
+  "react": {
+    "topics": 51,
+    "nodes": 24,
+    "edges": 30
+  },
+  "vue": {
+    "topics": 52,
+    "nodes": 24,
+    "edges": 30,
+    "reactGroupPresent": false,
+    "testingMembers": [
+      "unit-tests",
+      "component-tests",
+      "e2e",
+      "vue-testing"
+    ]
+  },
+  "checks": {
+    "rapidSwitch": "React → Vue → React: final React, 24 nodes, 30 edges",
+    "apiSearch": "Запросы к API in group:api, 3 tabs; HTTP and async prerequisites remain in card",
+    "apiKeyboard": "ArrowRight: fetch → REST; still 30 edges",
+    "vueSearch": "Vue с TypeScript in group:vue, 5 tabs",
+    "vueKeyboard": "ArrowRight: Vue с TypeScript → Композиция Vue",
+    "releaseSearch": "Сборка и инструменты in group:release, 3 tabs; Модули и npm prerequisite remains; 30 edges",
+    "returnToOverview": "3 nodes",
+    "zoomAndPan": "Graph controls and drag work; no group expansion"
+  },
+  "domOverview": {
+    "edgeCount": 30,
+    "nodeCount": 24,
+    "overflow": false,
+    "role": "role:middle-react",
+    "terminalBlocks": [
+      "middle-project"
+    ],
+    "viewport": {
+      "height": 668,
+      "width": 394
+    }
+  },
+  "domFinal": {
+    "blocks": 21,
+    "edges": 30,
+    "nodes": 24,
+    "overflow": false,
+    "topics": 51,
+    "uniqueTopics": 51,
+    "zoom": "22%"
+  },
+  "screenshots": [
+    "career-blocks-overview.png",
+    "career-blocks-detail.png"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@skilltree/graph-domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog.ts",
+    "./middle-react": "./src/middle-react.ts",
+    "./frontend-catalog": "./src/frontend-catalog.ts",
+    "./knowledge-layout": "./src/knowledge-layout.ts",
+    "./career-scene": "./src/career-scene.ts"
+  },
+  "dependencies": {
+    "elkjs": "0.12.0"
+  }
+}

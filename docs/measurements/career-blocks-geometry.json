@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-20",
+  "scenes": [
+    {
+      "role": "role:middle-react",
+      "topics": 51,
+      "blocks": 21,
+      "nodes": 24,
+      "edges": 30,
+      "maxCentreDistance": 434.7522966375564,
+      "maxRouteLength": 425.50065434407077,
+      "terminalBlocks": [
+        "middle-project"
+      ],
+      "bounds": {
+        "x": -4055.748717003909,
+        "y": -1083.5817403070002,
+        "width": 4503.748717003909,
+        "height": 1473.142346526238
+      }
+    },
+    {
+      "role": "role:middle-vue",
+      "topics": 52,
+      "blocks": 21,
+      "nodes": 24,
+      "edges": 30,
+      "maxCentreDistance": 451.134252762067,
+      "maxRouteLength": 449.20116985366695,
+      "terminalBlocks": [
+        "vue-project"
+      ],
+      "bounds": {
+        "x": -448,
+        "y": -436.48449129063755,
+        "width": 4492.90658225373,
+        "height": 1447.9594425805165
+      }
+    }
+  ]
+}

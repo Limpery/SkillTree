@@ -1,0 +1,491 @@
+{
+  "measuredAtUtc": "2026-10-19T16:25:53.265Z",
+  "environment": {
+    "node": "v25.0.0",
+    "platform": "win32",
+    "osRelease": "10.0.26200",
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12450H",
+    "logicalProcessors": 12,
+    "ramGiB": 16,
+    "browser": "155.0.4283.62",
+    "channel": "msedge",
+    "headless": true,
+    "viewport": "1440x1000",
+    "deviceScaleFactor": 1,
+    "build": "production",
+    "rounds": 3,
+    "frameSamplesPerRound": 95,
+    "note": "RAF frames during programmatic pan/zoom; selection uses a DOM click and waits for card rendering. App-ready starts inside App, excluding download and browser startup. Heap is JS heap only."
+  },
+  "results": [
+    {
+      "count": 100,
+      "mode": "collapsed",
+      "appReadyMedianMs": 141.70000000298023,
+      "fpsMedian": 116.76499508357915,
+      "frameP95WorstMs": 12.100000000000023,
+      "selectionMedianMs": 31.700000002980232,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 381.69999999552965,
+          "catalogMs": 2.5,
+          "projectionMs": 0.8999999985098839,
+          "canonicalCount": 100,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 144.00485068970744,
+          "frameP95Ms": 7,
+          "selectionMs": 37.70000000298023,
+          "heapBytes": 5727519
+        },
+        {
+          "round": 2,
+          "appReadyMs": 141.70000000298023,
+          "catalogMs": 2,
+          "projectionMs": 0.6000000014901161,
+          "canonicalCount": 100,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 116.76499508357915,
+          "frameP95Ms": 12.100000000000023,
+          "selectionMs": 28.600000001490116,
+          "heapBytes": 5704726
+        },
+        {
+          "round": 3,
+          "appReadyMs": 137.20000000298023,
+          "catalogMs": 3,
+          "projectionMs": 0.7999999970197678,
+          "canonicalCount": 100,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 114.48541817305376,
+          "frameP95Ms": 11.399999999999864,
+          "selectionMs": 31.700000002980232,
+          "heapBytes": 5729167
+        }
+      ]
+    },
+    {
+      "count": 100,
+      "mode": "auto",
+      "appReadyMedianMs": 149.39999999850988,
+      "fpsMedian": 142.13046080191504,
+      "frameP95WorstMs": 7.899999999999864,
+      "selectionMedianMs": 41,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 149.39999999850988,
+          "catalogMs": 1.7000000029802322,
+          "projectionMs": 0.20000000298023224,
+          "canonicalCount": 100,
+          "visibleCount": 61,
+          "renderedCount": 34,
+          "edgeCount": 52,
+          "fps": 142.13046080191504,
+          "frameP95Ms": 7.899999999999864,
+          "selectionMs": 41,
+          "heapBytes": 8442794
+        },
+        {
+          "round": 2,
+          "appReadyMs": 144.39999999850988,
+          "catalogMs": 1.8999999985098839,
+          "projectionMs": 0.10000000149011612,
+          "canonicalCount": 100,
+          "visibleCount": 61,
+          "renderedCount": 34,
+          "edgeCount": 52,
+          "fps": 144.0266828380837,
+          "frameP95Ms": 7.100000000000023,
+          "selectionMs": 39.69999999552965,
+          "heapBytes": 8467210
+        },
+        {
+          "round": 3,
+          "appReadyMs": 151.79999999701977,
+          "catalogMs": 2.5,
+          "projectionMs": 0.29999999701976776,
+          "canonicalCount": 100,
+          "visibleCount": 61,
+          "renderedCount": 34,
+          "edgeCount": 52,
+          "fps": 141.03325415676957,
+          "frameP95Ms": 7.099999999999909,
+          "selectionMs": 42.100000001490116,
+          "heapBytes": 8454543
+        }
+      ]
+    },
+    {
+      "count": 100,
+      "mode": "expanded",
+      "appReadyMedianMs": 205.79999999701977,
+      "fpsMedian": 142.4074351671414,
+      "frameP95WorstMs": 7.100000000000023,
+      "selectionMedianMs": 73.60000000149012,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 205.79999999701977,
+          "catalogMs": 2.8000000044703484,
+          "projectionMs": 0.8000000044703484,
+          "canonicalCount": 100,
+          "visibleCount": 100,
+          "renderedCount": 100,
+          "edgeCount": 153,
+          "fps": 143.5478996675733,
+          "frameP95Ms": 7.100000000000023,
+          "selectionMs": 83.5,
+          "heapBytes": 9032188
+        },
+        {
+          "round": 2,
+          "appReadyMs": 210.89999999850988,
+          "catalogMs": 2.5999999940395355,
+          "projectionMs": 1,
+          "canonicalCount": 100,
+          "visibleCount": 100,
+          "renderedCount": 100,
+          "edgeCount": 153,
+          "fps": 142.4074351671414,
+          "frameP95Ms": 7.100000000000023,
+          "selectionMs": 73.60000000149012,
+          "heapBytes": 8994399
+        },
+        {
+          "round": 3,
+          "appReadyMs": 189.39999999850988,
+          "catalogMs": 2,
+          "projectionMs": 1.1000000014901161,
+          "canonicalCount": 100,
+          "visibleCount": 100,
+          "renderedCount": 100,
+          "edgeCount": 153,
+          "fps": 141.64305949008497,
+          "frameP95Ms": 7.100000000000023,
+          "selectionMs": 70.89999999850988,
+          "heapBytes": 9007620
+        }
+      ]
+    },
+    {
+      "count": 300,
+      "mode": "collapsed",
+      "appReadyMedianMs": 142.79999999701977,
+      "fpsMedian": 118.0417495029821,
+      "frameP95WorstMs": 11.799999999999955,
+      "selectionMedianMs": 33.900000005960464,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 142.79999999701977,
+          "catalogMs": 2.7000000029802322,
+          "projectionMs": 2.5,
+          "canonicalCount": 300,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 119.85869290941208,
+          "frameP95Ms": 10.599999999999909,
+          "selectionMs": 27.100000001490116,
+          "heapBytes": 5654789
+        },
+        {
+          "round": 2,
+          "appReadyMs": 145.59999999403954,
+          "catalogMs": 2.5,
+          "projectionMs": 1.8000000044703484,
+          "canonicalCount": 300,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 118.0417495029821,
+          "frameP95Ms": 11.799999999999955,
+          "selectionMs": 42,
+          "heapBytes": 5617353
+        },
+        {
+          "round": 3,
+          "appReadyMs": 140.89999999850988,
+          "catalogMs": 2.7000000029802322,
+          "projectionMs": 2,
+          "canonicalCount": 300,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 113.69076112972714,
+          "frameP95Ms": 10.800000000000068,
+          "selectionMs": 33.900000005960464,
+          "heapBytes": 5606937
+        }
+      ]
+    },
+    {
+      "count": 300,
+      "mode": "auto",
+      "appReadyMedianMs": 152.90000000596046,
+      "fpsMedian": 111.62025613911409,
+      "frameP95WorstMs": 12.899999999999977,
+      "selectionMedianMs": 62.600000001490116,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 154.80000000447035,
+          "catalogMs": 3.399999998509884,
+          "projectionMs": 0.3999999985098839,
+          "canonicalCount": 300,
+          "visibleCount": 154,
+          "renderedCount": 84,
+          "edgeCount": 145,
+          "fps": 112.71950640721404,
+          "frameP95Ms": 11.900000000000091,
+          "selectionMs": 64.29999999701977,
+          "heapBytes": 9819364
+        },
+        {
+          "round": 2,
+          "appReadyMs": 152.90000000596046,
+          "catalogMs": 3.8000000044703484,
+          "projectionMs": 0.3999999985098839,
+          "canonicalCount": 300,
+          "visibleCount": 154,
+          "renderedCount": 84,
+          "edgeCount": 145,
+          "fps": 109.3210586881473,
+          "frameP95Ms": 12.299999999999955,
+          "selectionMs": 62.600000001490116,
+          "heapBytes": 9831576
+        },
+        {
+          "round": 3,
+          "appReadyMs": 143.89999999850988,
+          "catalogMs": 3.1999999955296516,
+          "projectionMs": 0.29999999701976776,
+          "canonicalCount": 300,
+          "visibleCount": 154,
+          "renderedCount": 84,
+          "edgeCount": 145,
+          "fps": 111.62025613911409,
+          "frameP95Ms": 12.899999999999977,
+          "selectionMs": 57.20000000298023,
+          "heapBytes": 9825873
+        }
+      ]
+    },
+    {
+      "count": 300,
+      "mode": "expanded",
+      "appReadyMedianMs": 276,
+      "fpsMedian": 108.96994723560448,
+      "frameP95WorstMs": 13.299999999999955,
+      "selectionMedianMs": 122.5,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 276,
+          "catalogMs": 2.7999999970197678,
+          "projectionMs": 1.8000000044703484,
+          "canonicalCount": 300,
+          "visibleCount": 300,
+          "renderedCount": 300,
+          "edgeCount": 353,
+          "fps": 108.42273453549419,
+          "frameP95Ms": 12.5,
+          "selectionMs": 109.59999999403954,
+          "heapBytes": 16606679
+        },
+        {
+          "round": 2,
+          "appReadyMs": 282.5,
+          "catalogMs": 3.399999998509884,
+          "projectionMs": 2,
+          "canonicalCount": 300,
+          "visibleCount": 300,
+          "renderedCount": 300,
+          "edgeCount": 353,
+          "fps": 108.96994723560448,
+          "frameP95Ms": 13.299999999999955,
+          "selectionMs": 122.5,
+          "heapBytes": 16566086
+        },
+        {
+          "round": 3,
+          "appReadyMs": 271.1000000014901,
+          "catalogMs": 2.5,
+          "projectionMs": 2.3000000044703484,
+          "canonicalCount": 300,
+          "visibleCount": 300,
+          "renderedCount": 300,
+          "edgeCount": 353,
+          "fps": 112.38613509996452,
+          "frameP95Ms": 12.600000000000023,
+          "selectionMs": 124,
+          "heapBytes": 16563562
+        }
+      ]
+    },
+    {
+      "count": 800,
+      "mode": "collapsed",
+      "appReadyMedianMs": 147.60000000149012,
+      "fpsMedian": 115.15151515151516,
+      "frameP95WorstMs": 12.5,
+      "selectionMedianMs": 29.299999997019768,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 147.60000000149012,
+          "catalogMs": 6.100000001490116,
+          "projectionMs": 1.3000000044703484,
+          "canonicalCount": 800,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 115.76894954911042,
+          "frameP95Ms": 12,
+          "selectionMs": 29.299999997019768,
+          "heapBytes": 5657947
+        },
+        {
+          "round": 2,
+          "appReadyMs": 148.40000000596046,
+          "catalogMs": 5.899999998509884,
+          "projectionMs": 1.3000000044703484,
+          "canonicalCount": 800,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 115.15151515151516,
+          "frameP95Ms": 11.600000000000136,
+          "selectionMs": 33.79999999701977,
+          "heapBytes": 6409285
+        },
+        {
+          "round": 3,
+          "appReadyMs": 138.40000000596046,
+          "catalogMs": 5.9000000059604645,
+          "projectionMs": 1.1999999955296516,
+          "canonicalCount": 800,
+          "visibleCount": 22,
+          "renderedCount": 22,
+          "edgeCount": 18,
+          "fps": 114.33385485618007,
+          "frameP95Ms": 12.5,
+          "selectionMs": 27.900000005960464,
+          "heapBytes": 5656200
+        }
+      ]
+    },
+    {
+      "count": 800,
+      "mode": "auto",
+      "appReadyMedianMs": 144.39999999850988,
+      "fpsMedian": 96.69211195928753,
+      "frameP95WorstMs": 18.799999999999955,
+      "selectionMedianMs": 109.39999999850988,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 156,
+          "catalogMs": 6.100000001490116,
+          "projectionMs": 0.8999999985098839,
+          "canonicalCount": 800,
+          "visibleCount": 384,
+          "renderedCount": 190,
+          "edgeCount": 375,
+          "fps": 96.69211195928753,
+          "frameP95Ms": 18.700000000000045,
+          "selectionMs": 109.39999999850988,
+          "heapBytes": 16239916
+        },
+        {
+          "round": 2,
+          "appReadyMs": 142.39999999850988,
+          "catalogMs": 6,
+          "projectionMs": 0.7000000029802322,
+          "canonicalCount": 800,
+          "visibleCount": 384,
+          "renderedCount": 190,
+          "edgeCount": 375,
+          "fps": 94.73474272038293,
+          "frameP95Ms": 18.799999999999955,
+          "selectionMs": 113.5,
+          "heapBytes": 16222352
+        },
+        {
+          "round": 3,
+          "appReadyMs": 144.39999999850988,
+          "catalogMs": 7,
+          "projectionMs": 0.7999999970197678,
+          "canonicalCount": 800,
+          "visibleCount": 384,
+          "renderedCount": 190,
+          "edgeCount": 375,
+          "fps": 97.515910490659,
+          "frameP95Ms": 18.299999999999955,
+          "selectionMs": 104.60000000149012,
+          "heapBytes": 16206903
+        }
+      ]
+    },
+    {
+      "count": 800,
+      "mode": "expanded",
+      "appReadyMedianMs": 540.7000000029802,
+      "fpsMedian": 63.00152530008622,
+      "frameP95WorstMs": 27.5,
+      "selectionMedianMs": 258.29999999701977,
+      "rounds": [
+        {
+          "round": 1,
+          "appReadyMs": 553.6000000014901,
+          "catalogMs": 7.899999998509884,
+          "projectionMs": 1.6999999955296516,
+          "canonicalCount": 800,
+          "visibleCount": 800,
+          "renderedCount": 800,
+          "edgeCount": 853,
+          "fps": 60.34044715447154,
+          "frameP95Ms": 27.5,
+          "selectionMs": 258.29999999701977,
+          "heapBytes": 30360001
+        },
+        {
+          "round": 2,
+          "appReadyMs": 540.7000000029802,
+          "catalogMs": 6.600000001490116,
+          "projectionMs": 1.5,
+          "canonicalCount": 800,
+          "visibleCount": 800,
+          "renderedCount": 800,
+          "edgeCount": 853,
+          "fps": 63.00152530008622,
+          "frameP95Ms": 23.5,
+          "selectionMs": 261.80000000447035,
+          "heapBytes": 30206060
+        },
+        {
+          "round": 3,
+          "appReadyMs": 534.6000000014901,
+          "catalogMs": 5.700000002980232,
+          "projectionMs": 1.6000000014901161,
+          "canonicalCount": 800,
+          "visibleCount": 800,
+          "renderedCount": 800,
+          "edgeCount": 853,
+          "fps": 64.15884379009927,
+          "frameP95Ms": 22.800000000000182,
+          "selectionMs": 247.70000000298023,
+          "heapBytes": 30358124
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-20",
+  "url": "http://127.0.0.1:5175/",
+  "checks": {
+    "reactNodes": 43,
+    "vueNodes": 44,
+    "overviewNodes": 3,
+    "rapidSwitch": "React → Vue → React: final React, 43 nodes",
+    "search": "Эффекты и refs selected in React group",
+    "keyboardTab": "ArrowRight selects React с TypeScript",
+    "overflow": false
+  },
+  "dom": {
+    "busy": "false",
+    "nodes": 43,
+    "role": "role:middle-react",
+    "sequence": [
+      {
+        "id": "web-basics",
+        "style": "z-index: 0; transform: translate(-686px, 37.428px); pointer-events: all; visibility: visible; width: 196px; height: 196px;"
+      },
+      {
+        "id": "html",
+        "style": "z-index: 0; transform: translate(-974px, 158.075px); pointer-events: all; visibility: visible; width: 196px; height: 196px;"
+      },
+      {
+        "id": "group:javascript",
+        "style": "z-index: 0; transform: translate(-1262px, 258.23px); pointer-events: all; visibility: visible; width: 196px; height: 196px;"
+      },
+      {
+        "id": "group:typescript",
+        "style": "z-index: 0; transform: translate(-1550px, 170.023px); pointer-events: all; visibility: visible; width: 196px; height: 196px;"
+      },
+      {
+        "id": "group:react",
+        "style": "z-index: 0; transform: translate(-1838px, -68.6258px); pointer-events: all; visibility: visible; width: 196px; height: 196px;"
+      }
+    ],
+    "viewport": {
+      "height": 668,
+      "width": 394
+    }
+  }
+}

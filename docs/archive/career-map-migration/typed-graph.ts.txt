@@ -1,0 +1,78 @@
+import type { KnowledgeTopic } from './middle-react.ts';
+import { trackMembership, type FrontendCatalog, type TrackId } from './frontend-catalog.ts';
+import type { Point, Relation } from './index.ts';
+import { KNOWLEDGE_NODE, MAP_DIRECTIONS, essentialRelations, routeKnowledgeEdges, type RadialKnowledgeLayout, type RadialLayoutOptions } from './knowledge-layout.ts';
+import { VERTEX_LEVELS, VERTEX_TYPES, type VertexType } from './vertex.ts';
+
+export type GraphViewNode = { id: string; topic: KnowledgeTopic; type: VertexType; memberIds: string[]; tracks: TrackId[] };
+export type GraphViewEdge = Relation & { originalRelations: Relation[] };
+export type GraphView = { nodes: GraphViewNode[]; edges: GraphViewEdge[]; nodeIdByTopic: Map<string, string> };
+export type LevelBand = { type: VertexType; label: string; innerRadius: number; outerRadius: number; radius: number };
+export type TypedKnowledgeLayout = RadialKnowledgeLayout & { bands: LevelBand[] };
+
+/** Grouping is a persistent view projection. No zoom argument: entities are never split by scale. */
+export function createGraphView(catalog: FrontendCatalog): GraphView {
+  const topics = new Map(catalog.topics.map(topic => [topic.id, topic]));
+  const membership = trackMembership(catalog);
+  const nodeIdByTopic = new Map(catalog.vertices.map(vertex => [vertex.id, vertex.groupingId ?? vertex.id]));
+  const nodes: GraphViewNode[] = catalog.vertices.filter(vertex => !vertex.groupingId).map(vertex => ({
+    id: vertex.id, topic: topics.get(vertex.id)!, type: vertex.type, memberIds: [vertex.id], tracks: membership.get(vertex.id)!,
+  }));
+  for (const group of catalog.vertexGroups) {
+    const first = topics.get(group.members[0])!;
+    nodes.push({ id: group.id, type: group.type, memberIds: [...group.members], tracks: [...new Set(group.members.flatMap(id => membership.get(id)!))],
+      topic: { ...first, id: group.id, label: group.label, short: group.short } });
+  }
+  const edges = new Map<string, GraphViewEdge>();
+  // Reduce canonical edges before grouping. Contraction can create display cycles, which are valid.
+  for (const original of essentialRelations(catalog)) {
+    const source = nodeIdByTopic.get(original.source)!, target = nodeIdByTopic.get(original.target)!;
+    if (source === target) continue; // Internal links remain available in each member's card.
+    const id = source + '>' + target;
+    const edge = edges.get(id) ?? { id, source, target, kind: 'prerequisite', originalRelations: [] };
+    edge.originalRelations.push(original); edges.set(id, edge);
+  }
+  return { nodes, edges: [...edges.values()], nodeIdByTopic };
+}
+
+/** Every complete node circle stays in the annulus assigned to its declared type. */
+export async function layoutTypedKnowledgeGraph(catalog: FrontendCatalog, view = createGraphView(catalog), options: RadialLayoutOptions = {}): Promise<TypedKnowledgeLayout> {
+  const roleDirection = (id: string) => options.roleDirections?.[id] ?? 'frontend';
+  const directions = MAP_DIRECTIONS.map(direction => ({ ...direction, angle: options.directionAngles?.[direction.id] ?? direction.angle,
+    active: catalog.roles.some(role => roleDirection(role.id) === direction.id) }));
+  const positions: Record<string, Point> = {}, levels: Record<string, number> = {}, angles: Record<string, number> = {};
+  const bands: LevelBand[] = [];
+  let previousRadius = -260;
+  const angleDistance = (a: number, b: number) => Math.abs(((a - b + 540) % 360) - 180);
+  for (const type of VERTEX_TYPES) {
+    const nodes = view.nodes.filter(node => node.type === type);
+    const radius = Math.max(previousRadius + 500, nodes.length * 280 / (2 * Math.PI) + 100);
+    previousRadius = radius;
+    bands.push({ type, label: VERTEX_LEVELS[type].label, radius, innerRadius: Math.max(0, radius - 220), outerRadius: radius + 220 });
+    const minimumAngle = 2 * Math.asin(140 / radius) * 180 / Math.PI;
+    const placed: number[] = [];
+    const assign = (node: GraphViewNode, desired: number) => {
+      // Move along the same circle only; collision correction cannot cross a level boundary.
+      const candidates = Array.from({ length: 720 }, (_, index) => index / 2 - 180).sort((a, b) => angleDistance(a, desired) - angleDistance(b, desired));
+      const angle = candidates.find(candidate => placed.every(other => angleDistance(candidate, other) >= minimumAngle));
+      if (angle === undefined) throw new Error('Недостаточно места в кольце: ' + type);
+      placed.push(angle); angles[node.id] = angle; levels[node.id] = VERTEX_LEVELS[type].index;
+      positions[node.id] = { x: Math.cos(angle * Math.PI / 180) * radius, y: Math.sin(angle * Math.PI / 180) * radius };
+    };
+    for (const track of catalog.tracks) {
+      const exclusive = nodes.filter(node => node.tracks.length === 1 && node.tracks[0] === track.id);
+      const direction = directions.find(item => item.id === roleDirection(track.roleId));
+      if (!direction) throw new Error('Неизвестное направление профессии: ' + roleDirection(track.roleId));
+      const peers = catalog.tracks.filter(item => roleDirection(item.roleId) === direction.id);
+      const index = peers.findIndex(item => item.id === track.id);
+      const middle = direction.angle + (peers.length === 1 ? 0 : 22 - index * 44 / (peers.length - 1));
+      exclusive.forEach((node, index) => assign(node, middle + (index - (exclusive.length - 1) / 2) * Math.max(minimumAngle + 2, 16)));
+    }
+    nodes.filter(node => !positions[node.id]).forEach((node, index) => assign(node, index * 137.507764 - 45));
+  }
+  const outerRadius = bands.at(-1)!.outerRadius;
+  const size = 2 * (outerRadius + 380), center = { x: size / 2, y: size / 2 };
+  for (const position of Object.values(positions)) { position.x += center.x; position.y += center.y; }
+  const edges = routeKnowledgeEdges(positions, view.edges);
+  return { positions, edges, levels, angles, center, outerRadius, width: size, height: size, directions, bands };
+}

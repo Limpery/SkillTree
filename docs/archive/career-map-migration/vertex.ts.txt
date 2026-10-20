@@ -1,0 +1,103 @@
+import type { Relation } from './index.ts';
+import type { KnowledgeTopic, Material } from './middle-react.ts';
+
+export const VERTEX_TYPES = ['foundation', 'easy', 'medium', 'hard', 'project', 'specialty'] as const;
+export type VertexType = typeof VERTEX_TYPES[number];
+export const VERTEX_LEVELS = Object.freeze({
+  foundation: Object.freeze({ index: 0, label: 'Основы' }), easy: Object.freeze({ index: 1, label: 'Лёгкий уровень' }),
+  medium: Object.freeze({ index: 2, label: 'Средний уровень' }), hard: Object.freeze({ index: 3, label: 'Сложный уровень' }),
+  project: Object.freeze({ index: 4, label: 'Проект' }), specialty: Object.freeze({ index: 5, label: 'Специальность' }),
+});
+export type VertexInput<T extends VertexType = VertexType> = {
+  id: string; type: T; label: string; short: string; stageId: string;
+  description: string; outcome: string; prerequisites: readonly string[];
+  resources: readonly Readonly<Material>[]; groupingId?: string;
+};
+export type VertexGroup<T extends VertexType = VertexType> = {
+  id: string; type: T; label: string; short: string; members: readonly string[];
+};
+export type VertexConnections = { readonly incoming: readonly Readonly<Relation>[]; readonly outgoing: readonly Readonly<Relation>[] };
+const connections = new WeakMap<Vertex, VertexConnections>();
+
+/** Domain entity; React components and coordinates are separate from this model. */
+export class Vertex<T extends VertexType = VertexType> {
+  readonly #data: Readonly<VertexInput<T>>;
+  constructor(data: VertexInput<T>) {
+    if (!data || !VERTEX_TYPES.includes(data.type)) throw new Error('Неизвестный тип вершины');
+    for (const key of ['id', 'label', 'short', 'stageId', 'description', 'outcome'] as const)
+      if (typeof data[key] !== 'string' || !data[key].trim()) throw new Error('Пустое поле вершины: ' + key);
+    if (!Array.isArray(data.prerequisites) || data.prerequisites.some(id => typeof id !== 'string' || !id) || new Set(data.prerequisites).size !== data.prerequisites.length)
+      throw new Error('Некорректные связи вершины: ' + data.id);
+    if (!Array.isArray(data.resources) || data.resources.some(item => !item || typeof item.title !== 'string' || typeof item.url !== 'string'))
+      throw new Error('Некорректные материалы вершины: ' + data.id);
+    if (data.groupingId !== undefined && (typeof data.groupingId !== 'string' || !data.groupingId.trim())) throw new Error('Пустой идентификатор группировки');
+    this.#data = Object.freeze({ ...data, prerequisites: Object.freeze([...data.prerequisites]), resources: Object.freeze(data.resources.map(item => Object.freeze({ ...item }))) });
+    Object.freeze(this);
+  }
+  get id() { return this.#data.id; }
+  get type(): T { return this.#data.type; }
+  get level() { return VERTEX_LEVELS[this.type].index; }
+  get label() { return this.#data.label; }
+  get short() { return this.#data.short; }
+  get stageId() { return this.#data.stageId; }
+  get description() { return this.#data.description; }
+  get outcome() { return this.#data.outcome; }
+  get resources() { return this.#data.resources; }
+  get groupingId() { return this.#data.groupingId; }
+  get prerequisites() { return this.#data.prerequisites; }
+  get connections(): VertexConnections {
+    const value = connections.get(this);
+    if (!value) throw new Error('Вершина ещё не включена в граф: ' + this.id);
+    return value;
+  }
+  toJSON(): VertexInput<T> { return { ...this.#data, prerequisites: [...this.prerequisites], resources: this.#data.resources.map(item => ({ ...item })) }; }
+  /** Adapter for existing curriculum algorithms; DTO edits cannot mutate the entity. */
+  toTopic(): KnowledgeTopic {
+    const { type, groupingId: _groupingId, ...data } = this.toJSON();
+    return { ...data, prerequisites: [...data.prerequisites], resources: data.resources.map(item => ({ ...item })),
+      kind: type === 'specialty' ? 'role' : type === 'foundation' ? 'foundation' : 'technology', practice: type === 'project', groupId: data.stageId, position: { x: 0, y: 0 } };
+  }
+}
+
+/** Prerequisite IDs are the single source of truth for both incoming and outgoing links. */
+export function assembleVertices(vertices: Vertex[], groups: readonly VertexGroup[]): Relation[] {
+  const byId = new Map(vertices.map(vertex => [vertex.id, vertex]));
+  if (byId.size !== vertices.length) throw new Error('Повторный идентификатор вершины');
+  if (vertices.some(vertex => connections.has(vertex))) throw new Error('Вершина уже включена в граф');
+  const relations: Relation[] = [];
+  for (const vertex of vertices) for (const id of vertex.prerequisites) {
+    const parent = byId.get(id);
+    if (!parent) throw new Error('Неизвестная связанная вершина: ' + id);
+    if (parent.level > vertex.level) throw new Error('Зависимость ведёт с более сложного уровня: ' + id + ' → ' + vertex.id);
+    relations.push({ id: id + '>' + vertex.id, source: id, target: vertex.id, kind: 'prerequisite' });
+  }
+  const visited = new Set<string>(), visiting = new Set<string>();
+  function visit(vertex: Vertex) {
+    if (visiting.has(vertex.id)) throw new Error('Цикл зависимостей: ' + vertex.id);
+    if (visited.has(vertex.id)) return;
+    visiting.add(vertex.id); vertex.prerequisites.forEach(id => visit(byId.get(id)!));
+    visiting.delete(vertex.id); visited.add(vertex.id);
+  }
+  vertices.forEach(visit);
+  const memberOf = new Map<string, string>(), groupIds = new Set<string>();
+  for (const group of groups) {
+    if (groupIds.has(group.id) || byId.has(group.id)) throw new Error('Повторный идентификатор группы: ' + group.id);
+    groupIds.add(group.id);
+    if (!VERTEX_TYPES.includes(group.type) || group.members.length < 2) throw new Error('Группа должна содержать минимум две вершины одного типа');
+    for (const id of group.members) {
+      const vertex = byId.get(id);
+      if (!vertex) throw new Error('Неизвестная вершина группы: ' + id);
+      if (vertex.type !== group.type) throw new Error('Нельзя группировать вершины разных типов: ' + group.id);
+      if (memberOf.has(id)) throw new Error('Вершина включена в группу повторно: ' + id);
+      if (vertex.groupingId !== group.id) throw new Error('Поле groupingId не соответствует группе: ' + id);
+      memberOf.set(id, group.id);
+    }
+  }
+  for (const vertex of vertices) if (vertex.groupingId !== memberOf.get(vertex.id)) throw new Error('Не найдена группировка вершины: ' + vertex.id);
+  const frozenRelations = relations.map(edge => Object.freeze({ ...edge }));
+  for (const vertex of vertices) connections.set(vertex, Object.freeze({
+    incoming: Object.freeze(frozenRelations.filter(edge => edge.target === vertex.id)),
+    outgoing: Object.freeze(frozenRelations.filter(edge => edge.source === vertex.id)),
+  }));
+  return relations;
+}

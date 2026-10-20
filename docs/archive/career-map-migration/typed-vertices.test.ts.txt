@@ -1,0 +1,105 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createFrontendCatalog } from '../src/frontend-catalog.ts';
+import { Vertex, assembleVertices, VERTEX_TYPES, type VertexInput } from '../src/vertex.ts';
+import { createGraphView, layoutTypedKnowledgeGraph } from '../src/typed-graph.ts';
+import { KNOWLEDGE_NODE } from '../src/knowledge-layout.ts';
+
+const input = (id: string, patch: Partial<VertexInput> = {}): VertexInput => ({ id, type: 'easy', label: id, short: id, stageId: 'web', description: 'Описание темы', outcome: 'Проверяемый результат', resources: [], prerequisites: [], ...patch });
+const catalog = createFrontendCatalog();
+const view = createGraphView(catalog);
+const layoutPromise = layoutTypedKnowledgeGraph(catalog, view);
+
+test('62 сущности имеют явный тип; их входящие и исходящие связи согласованы', () => {
+  assert.equal(catalog.vertices.length, 62);
+  assert.deepEqual(new Set(catalog.vertices.map(vertex => vertex.type)), new Set(VERTEX_TYPES));
+  for (const vertex of catalog.vertices) {
+    assert(vertex instanceof Vertex);
+    assert.deepEqual(vertex.connections.incoming.map(edge => edge.source), [...vertex.prerequisites]);
+    assert.deepEqual(vertex.connections.outgoing.map(edge => edge.target), catalog.relations.filter(edge => edge.source === vertex.id).map(edge => edge.target));
+  }
+});
+
+test('изменение исходных объектов, DTO и JSON не изменяет класс вершины', () => {
+  const original = input('a');
+  const vertex = new Vertex(original);
+  (original.prerequisites as string[]).push('outside');
+  const dto = vertex.toTopic(); dto.prerequisites.push('dto');
+  const json = vertex.toJSON(); (json.prerequisites as string[]).push('json');
+  assert.deepEqual(vertex.prerequisites, []);
+  assert.throws(() => (vertex.prerequisites as string[]).push('mutation'));
+  assert.equal(new Vertex(JSON.parse(JSON.stringify(vertex))).type, 'easy');
+});
+
+test('неизвестные типы, отсутствующие связи и обратные уровни отклоняются', () => {
+  assert.throws(() => new Vertex(input('a', { type: 'invalid' as 'easy' })), /тип/);
+  assert.throws(() => assembleVertices([new Vertex(input('a', { prerequisites: ['missing'] }))], []), /Неизвестная/);
+  assert.throws(() => assembleVertices([new Vertex(input('a', { type: 'hard' })), new Vertex(input('b', { prerequisites: ['a'] }))], []), /более сложного/);
+});
+
+test('циклы и повторные идентификаторы отклоняются до построения карты', () => {
+  assert.throws(() => assembleVertices([new Vertex(input('a')), new Vertex(input('a'))], []), /Повторный/);
+  assert.throws(() => assembleVertices([new Vertex(input('a', { prerequisites: ['b'] })), new Vertex(input('b', { prerequisites: ['a'] }))], []), /Цикл/);
+});
+
+test('смешанные группы и несогласованное поле groupingId отклоняются', () => {
+  const group = { id: 'group:g', type: 'easy' as const, label: 'Группа', short: 'G', members: ['a', 'b'] };
+  assert.throws(() => assembleVertices([new Vertex(input('a', { groupingId: group.id })), new Vertex(input('b', { type: 'medium', groupingId: group.id }))], [group]), /разных типов/);
+  assert.throws(() => assembleVertices([new Vertex(input('a', { groupingId: group.id }))], []), /группировка/);
+  assert.throws(() => assembleVertices([new Vertex(input('a')), new Vertex(input('b'))], [group]), /groupingId/);
+  assert.throws(() => assembleVertices([new Vertex(input('a', { groupingId: group.id }))], [{ ...group, members: ['a', 'a'] }]), /повторно/);
+});
+
+test('группировка объединяет только отображение; все темы и внутренние связи остаются в модели', () => {
+  assert.equal(view.nodes.length, 47);
+  assert.equal(catalog.vertexGroups.length, 7);
+  assert.equal(new Set(view.nodes.flatMap(node => node.memberIds)).size, catalog.vertices.length);
+  for (const group of catalog.vertexGroups) {
+    const node = view.nodes.find(node => node.id === group.id)!;
+    assert.deepEqual(node.memberIds, group.members);
+    for (const id of group.members) assert.equal(view.nodeIdByTopic.get(id), group.id);
+  }
+  assert(catalog.relations.some(edge => edge.source === 'react' && edge.target === 'react-state'));
+  assert(!view.edges.some(edge => edge.source === edge.target));
+  assert.equal(view.nodeIdByTopic.get('react-effects'), 'group:react');
+  assert(catalog.topics.find(topic => topic.id === 'react-effects')!.resources.length > 0);
+});
+
+test('каждая отображаемая вершина целиком находится в кольце своего типа', async () => {
+  const layout = await layoutPromise;
+  assert.equal(layout.bands.length, 6);
+  for (const node of view.nodes) {
+    const band = layout.bands.find(band => band.type === node.type)!;
+    const p = layout.positions[node.id], radius = Math.hypot(p.x - layout.center.x, p.y - layout.center.y);
+    assert(radius - KNOWLEDGE_NODE.radius > band.innerRadius, node.id);
+    assert(radius + KNOWLEDGE_NODE.radius < band.outerRadius, node.id);
+  }
+});
+
+test('круги разделены; все участки маршрутов обходят другие вершины', async () => {
+  const layout = await layoutPromise;
+  const ids = Object.keys(layout.positions);
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+    const a = layout.positions[ids[i]], b = layout.positions[ids[j]];
+    assert(Math.hypot(a.x - b.x, a.y - b.y) > 2 * KNOWLEDGE_NODE.radius + 30);
+  }
+  for (const edge of layout.edges) for (let i = 1; i < edge.points.length; i++) {
+    const a = edge.points[i - 1], b = edge.points[i], dx = b.x - a.x, dy = b.y - a.y;
+    for (const id of ids) {
+      if (id === edge.source || id === edge.target) continue;
+      const p = layout.positions[id];
+      const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1)));
+      assert(Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy) > KNOWLEDGE_NODE.radius + 17, edge.id + ' / ' + id);
+    }
+  }
+});
+
+test('профессии на последнем кольце, проекты на предпоследнем; React и Vue расходятся', async () => {
+  const layout = await layoutPromise;
+  for (const role of catalog.roles) {
+    assert.equal(layout.levels[role.id], 5);
+    assert(layout.positions[role.id].y > layout.center.y);
+    assert.equal(layout.levels[catalog.topics.find(topic => topic.id === role.id)!.prerequisites[0]], 4);
+  }
+  assert(layout.positions['role:middle-react'].x < layout.positions['role:middle-vue'].x);
+});
