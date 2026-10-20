@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { FrontendCatalog } from '@skilltree/graph-domain/frontend-catalog';
+import type { CareerCatalog } from '@skilltree/graph-domain/frontend-catalog';
 import { createCareerScene, type CareerScene } from '@skilltree/graph-domain/career-scene';
 
 export type ScenePhase = 'idle' | 'leaving' | 'preparing' | 'entering';
@@ -12,7 +12,7 @@ function pause(ms: number, signal: AbortSignal): Promise<void> {
 }
 
 /** A new request cancels every pending stage of the preceding transition. */
-export function useCareerScene(catalog: FrontendCatalog) {
+export function useCareerScene(catalog: CareerCatalog) {
   const [scene, setScene] = useState<CareerScene>();
   const [phase, setPhase] = useState<ScenePhase>('preparing');
   const [requestedRoleId, setRequestedRoleId] = useState<string>();

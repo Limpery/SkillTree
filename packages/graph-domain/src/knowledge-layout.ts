@@ -2,7 +2,8 @@ import type { ElkNode } from 'elkjs/lib/elk-api.js';
 import { planForRole, type Point } from './index.ts';
 import type { KnowledgeCatalog } from './middle-react.ts';
 
-export const KNOWLEDGE_NODE = { width: 196, height: 196, radius: 80 };
+export const KNOWLEDGE_NODE_SCALE = 1.3;
+export const KNOWLEDGE_NODE = { width: 196 * KNOWLEDGE_NODE_SCALE, height: 196 * KNOWLEDGE_NODE_SCALE, radius: 80 * KNOWLEDGE_NODE_SCALE };
 export type KnowledgeEdge = { id: string; source: string; target: string; path: string; points: Point[] };
 export type KnowledgeLayout = { positions: Record<string, Point>; edges: KnowledgeEdge[]; width: number; height: number; levels: Record<string, number> };
 

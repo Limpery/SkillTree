@@ -47,7 +47,7 @@ export class Vertex {
   toTopic(specialty = false): KnowledgeTopic {
     const { groupingId: _groupingId, ...data } = this.toJSON();
     return { ...data, prerequisites: [...data.prerequisites], resources: data.resources.map(item => ({ ...item })),
-      kind: specialty ? 'role' : !data.prerequisites.length ? 'foundation' : 'technology', practice: data.id === 'middle-project' || data.id === 'vue-project', groupId: data.stageId, position: { x: 0, y: 0 } };
+      kind: specialty ? 'role' : !data.prerequisites.length ? 'foundation' : 'technology', practice: !specialty && data.stageId === 'practice', groupId: data.stageId, position: { x: 0, y: 0 } };
   }
 }
 

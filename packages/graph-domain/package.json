@@ -8,6 +8,7 @@
     "./catalog": "./src/catalog.ts",
     "./middle-react": "./src/middle-react.ts",
     "./frontend-catalog": "./src/frontend-catalog.ts",
+    "./skill-catalog": "./src/skill-catalog.ts",
     "./knowledge-layout": "./src/knowledge-layout.ts",
     "./career-scene": "./src/career-scene.ts"
   },

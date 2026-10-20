@@ -1,0 +1,892 @@
+{
+  "date": "2026-10-20",
+  "method": "Manual CUA browser checks; npm test 46/46 and npm run build passed",
+  "radius": 8,
+  "periodSeconds": [
+    14,
+    22
+  ],
+  "pausedOffsetsUnchanged": true,
+  "checks": [
+    {
+      "scenario": "React после раскрытия",
+      "result": {
+        "career": "role:middle-react",
+        "edges": 30,
+        "maxAttachmentError": 0.14184434232378915,
+        "maxRadius": 7.827015395410949,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "-0.828px 4.432px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "2.644px 3.349px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "3.079px -4.63px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "-5.038px 1.49px"
+          },
+          {
+            "id": "programming",
+            "translate": "7.763px 0.999px"
+          },
+          {
+            "id": "group:web",
+            "translate": "-2.1px 5.911px"
+          },
+          {
+            "id": "html",
+            "translate": "-4.37px -2.868px"
+          },
+          {
+            "id": "group:css",
+            "translate": "6.111px -1.503px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "-3.81px -3.959px"
+          },
+          {
+            "id": "group:language",
+            "translate": "2.499px -4.496px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "5.99px 3.318px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "1.322px 4.41px"
+          },
+          {
+            "id": "group:react",
+            "translate": "-6.562px -2.557px"
+          },
+          {
+            "id": "group:api",
+            "translate": "-4.418px 1.965px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "1.329px -7.003px"
+          },
+          {
+            "id": "group:react-app",
+            "translate": "6.274px 3.432px"
+          },
+          {
+            "id": "group:data",
+            "translate": "-3.407px 2.505px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "-3.968px -4.259px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "1.114px 4.846px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "-6.003px -2.437px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "-1.108px -4.273px"
+          },
+          {
+            "id": "group:release",
+            "translate": "-4.399px -2.084px"
+          },
+          {
+            "id": "group:production",
+            "translate": "5.794px -2.211px"
+          },
+          {
+            "id": "middle-project",
+            "translate": "5.675px -1.45px"
+          }
+        ],
+        "viewportStyle": "translate(336.164px, 339.665px) scale(0.261441)"
+      }
+    },
+    {
+      "scenario": "React, открыта карточка API",
+      "result": {
+        "career": "role:middle-react",
+        "edges": 30,
+        "maxAttachmentError": 0.1421185466871468,
+        "maxRadius": 7.177428299885691,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "5.339px 1.869px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "4.969px -1.738px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "-0.215px -5.053px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "-5.123px 1.363px"
+          },
+          {
+            "id": "programming",
+            "translate": "4.022px 5.635px"
+          },
+          {
+            "id": "group:web",
+            "translate": "3.553px 5.447px"
+          },
+          {
+            "id": "html",
+            "translate": "-4.502px -2.763px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-2.184px -4.058px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "-6.056px -2.411px"
+          },
+          {
+            "id": "group:language",
+            "translate": "-5.671px -3.049px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "2.68px 5.66px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "4.968px -1.366px"
+          },
+          {
+            "id": "group:react",
+            "translate": "-6.773px -2.064px"
+          },
+          {
+            "id": "group:api",
+            "translate": "0.607px 3.451px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "-2.279px -6.806px"
+          },
+          {
+            "id": "group:react-app",
+            "translate": "2.754px 5.382px"
+          },
+          {
+            "id": "group:data",
+            "translate": "-5.225px -0.752px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "-4.621px -3.828px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "-3.223px 4.177px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "-5.013px -3.167px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "-2.586px -3.857px"
+          },
+          {
+            "id": "group:release",
+            "translate": "-5.581px -0.051px"
+          },
+          {
+            "id": "group:production",
+            "translate": "3.718px 3.997px"
+          },
+          {
+            "id": "middle-project",
+            "translate": "2.338px 3.708px"
+          }
+        ],
+        "viewportStyle": "translate(1908.38px, 713.176px) scale(0.65)"
+      }
+    },
+    {
+      "scenario": "Смена на Vue",
+      "result": {
+        "career": "role:middle-vue",
+        "edges": 30,
+        "maxAttachmentError": 0.14013432714902915,
+        "maxRadius": 2.908796658413922,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "1.879px -0.802px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "1.93px -0.468px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "2.791px -0.231px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "-1.956px 0.351px"
+          },
+          {
+            "id": "programming",
+            "translate": "-2.629px -0.981px"
+          },
+          {
+            "id": "group:web",
+            "translate": "-2.19px -1.414px"
+          },
+          {
+            "id": "html",
+            "translate": "-1.834px -0.839px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-0.47px -1.548px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "1.294px -1.493px"
+          },
+          {
+            "id": "group:language",
+            "translate": "-2.405px 0.795px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "0.173px -2.234px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "1.902px 0.146px"
+          },
+          {
+            "id": "group:vue",
+            "translate": "1.932px 0.23px"
+          },
+          {
+            "id": "group:api",
+            "translate": "1.893px -0.34px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "2.853px 0.567px"
+          },
+          {
+            "id": "group:vue-app",
+            "translate": "-1.588px -1.008px"
+          },
+          {
+            "id": "group:data",
+            "translate": "0.49px -1.15px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "0.034px -1.936px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "1.906px -0.933px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "-2.577px -0.352px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "0.731px -1.492px"
+          },
+          {
+            "id": "group:release",
+            "translate": "1.961px -0.355px"
+          },
+          {
+            "id": "group:production",
+            "translate": "0.63px 1.723px"
+          },
+          {
+            "id": "vue-project",
+            "translate": "0.754px 1.303px"
+          }
+        ],
+        "viewportStyle": "translate(186.593px, 354.349px) scale(0.296592)"
+      }
+    },
+    {
+      "scenario": "Пауза вне карты — первый кадр",
+      "result": {
+        "career": "role:middle-vue",
+        "edges": 30,
+        "maxAttachmentError": 0.14080739665275294,
+        "maxRadius": 7.29890964459761,
+        "motion": "paused",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "-4.457px -2.917px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "-5.582px 0.155px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "-4.817px 3.934px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "3.59px -2.738px"
+          },
+          {
+            "id": "programming",
+            "translate": "-4.35px -5.462px"
+          },
+          {
+            "id": "group:web",
+            "translate": "3.039px -5.643px"
+          },
+          {
+            "id": "html",
+            "translate": "2.232px 3.917px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-0.615px 4.287px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "2.177px 4.475px"
+          },
+          {
+            "id": "group:language",
+            "translate": "4.351px 3.856px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "-1.975px -5.868px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "-5.134px -0.76px"
+          },
+          {
+            "id": "group:vue",
+            "translate": "-4.514px 2.451px"
+          },
+          {
+            "id": "group:api",
+            "translate": "0.277px -3.468px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "3.701px 6.291px"
+          },
+          {
+            "id": "group:vue-app",
+            "translate": "5.773px -0.591px"
+          },
+          {
+            "id": "group:data",
+            "translate": "5.365px 0.158px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "6.099px 2.197px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "-1.914px -4.678px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "7.024px 0.976px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "-0.725px 4.324px"
+          },
+          {
+            "id": "group:release",
+            "translate": "5.568px -0.232px"
+          },
+          {
+            "id": "group:production",
+            "translate": "-5.38px -2.736px"
+          },
+          {
+            "id": "vue-project",
+            "translate": "3.808px -2.919px"
+          }
+        ],
+        "viewportStyle": "translate(186.593px, 354.349px) scale(0.296592)"
+      }
+    },
+    {
+      "scenario": "Пауза вне карты — повторный кадр",
+      "result": {
+        "career": "role:middle-vue",
+        "edges": 30,
+        "maxAttachmentError": 0.14080739665275294,
+        "maxRadius": 7.29890964459761,
+        "motion": "paused",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "-4.457px -2.917px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "-5.582px 0.155px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "-4.817px 3.934px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "3.59px -2.738px"
+          },
+          {
+            "id": "programming",
+            "translate": "-4.35px -5.462px"
+          },
+          {
+            "id": "group:web",
+            "translate": "3.039px -5.643px"
+          },
+          {
+            "id": "html",
+            "translate": "2.232px 3.917px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-0.615px 4.287px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "2.177px 4.475px"
+          },
+          {
+            "id": "group:language",
+            "translate": "4.351px 3.856px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "-1.975px -5.868px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "-5.134px -0.76px"
+          },
+          {
+            "id": "group:vue",
+            "translate": "-4.514px 2.451px"
+          },
+          {
+            "id": "group:api",
+            "translate": "0.277px -3.468px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "3.701px 6.291px"
+          },
+          {
+            "id": "group:vue-app",
+            "translate": "5.773px -0.591px"
+          },
+          {
+            "id": "group:data",
+            "translate": "5.365px 0.158px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "6.099px 2.197px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "-1.914px -4.678px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "7.024px 0.976px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "-0.725px 4.324px"
+          },
+          {
+            "id": "group:release",
+            "translate": "5.568px -0.232px"
+          },
+          {
+            "id": "group:production",
+            "translate": "-5.38px -2.736px"
+          },
+          {
+            "id": "vue-project",
+            "translate": "3.808px -2.919px"
+          }
+        ],
+        "viewportStyle": "translate(186.593px, 354.349px) scale(0.296592)"
+      }
+    },
+    {
+      "scenario": "Продолжение после возврата",
+      "result": {
+        "career": "role:middle-vue",
+        "edges": 30,
+        "maxAttachmentError": 0.14032632747914128,
+        "maxRadius": 7.825480049172702,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "1.145px -4.391px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "-3.208px -3.112px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "5.187px 3.725px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "4.933px 1.633px"
+          },
+          {
+            "id": "programming",
+            "translate": "-7.757px 1.033px"
+          },
+          {
+            "id": "group:web",
+            "translate": "-6.771px -2.89px"
+          },
+          {
+            "id": "html",
+            "translate": "5.885px -0.626px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-5.793px 1.978px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "6.952px -0.79px"
+          },
+          {
+            "id": "group:language",
+            "translate": "-3.115px 4.331px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "-7.105px -0.558px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "-2.111px -4.168px"
+          },
+          {
+            "id": "group:vue",
+            "translate": "2.083px 4.269px"
+          },
+          {
+            "id": "group:api",
+            "translate": "4.893px -1.416px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "-5.429px 5.202px"
+          },
+          {
+            "id": "group:vue-app",
+            "translate": "2.22px -3.795px"
+          },
+          {
+            "id": "group:data",
+            "translate": "2.705px -2.799px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "-1.064px 5.216px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "5.577px -1.948px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "-0.187px 4.409px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "5.267px 1.347px"
+          },
+          {
+            "id": "group:release",
+            "translate": "2.419px 3.051px"
+          },
+          {
+            "id": "group:production",
+            "translate": "-5.913px 2.026px"
+          },
+          {
+            "id": "vue-project",
+            "translate": "5.904px 0.621px"
+          }
+        ],
+        "viewportStyle": "translate(186.593px, 354.349px) scale(0.296592)"
+      }
+    },
+    {
+      "scenario": "Быстрое переключение React → Vue → React",
+      "result": {
+        "career": "role:middle-react",
+        "edges": 30,
+        "maxAttachmentError": 0.13619806718357855,
+        "maxRadius": 3.699480233762575,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "2.447px -0.949px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "2.491px -0.532px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "3.528px -0.42px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "-2.525px 0.365px"
+          },
+          {
+            "id": "programming",
+            "translate": "-3.413px -1.128px"
+          },
+          {
+            "id": "group:web",
+            "translate": "-2.913px -1.673px"
+          },
+          {
+            "id": "html",
+            "translate": "-2.41px -0.985px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-0.486px -1.986px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "1.493px -1.96px"
+          },
+          {
+            "id": "group:language",
+            "translate": "-3.126px 0.932px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "0.069px -2.853px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "2.414px 0.265px"
+          },
+          {
+            "id": "group:react",
+            "translate": "-1.881px -2.484px"
+          },
+          {
+            "id": "group:api",
+            "translate": "2.439px -0.368px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "3.595px 0.873px"
+          },
+          {
+            "id": "group:react-app",
+            "translate": "2.739px -1.779px"
+          },
+          {
+            "id": "group:data",
+            "translate": "0.524px -1.48px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "0.197px -2.463px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "2.508px -1.077px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "-3.242px -0.553px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "0.803px -1.937px"
+          },
+          {
+            "id": "group:release",
+            "translate": "2.53px -0.384px"
+          },
+          {
+            "id": "group:production",
+            "translate": "0.915px 2.171px"
+          },
+          {
+            "id": "middle-project",
+            "translate": "1.456px 1.612px"
+          }
+        ],
+        "viewportStyle": "translate(1253.74px, 528.075px) scale(0.295887)"
+      }
+    },
+    {
+      "scenario": "Нажатие плавающей вершины React",
+      "result": {
+        "career": "role:middle-react",
+        "edges": 30,
+        "maxAttachmentError": 0.13936935441812728,
+        "maxRadius": 7.755083623017872,
+        "motion": "running",
+        "nodes": 24,
+        "offsets": [
+          {
+            "id": "map:start",
+            "translate": "5.582px -1.398px"
+          },
+          {
+            "id": "role:middle-react",
+            "translate": "4.902px -1.824px"
+          },
+          {
+            "id": "role:middle-vue",
+            "translate": "-6.361px -2.825px"
+          },
+          {
+            "id": "group:environment",
+            "translate": "0.343px -3.591px"
+          },
+          {
+            "id": "programming",
+            "translate": "-7.521px 1.891px"
+          },
+          {
+            "id": "group:web",
+            "translate": "4.241px 5.121px"
+          },
+          {
+            "id": "html",
+            "translate": "-1.461px 4.096px"
+          },
+          {
+            "id": "group:css",
+            "translate": "-2.296px -4.03px"
+          },
+          {
+            "id": "group:javascript",
+            "translate": "-6.611px 1.639px"
+          },
+          {
+            "id": "group:language",
+            "translate": "-7.208px 0.975px"
+          },
+          {
+            "id": "group:typescript",
+            "translate": "-5.983px -3.327px"
+          },
+          {
+            "id": "group:browser",
+            "translate": "5.144px -0.707px"
+          },
+          {
+            "id": "group:react",
+            "translate": "6.368px -2.927px"
+          },
+          {
+            "id": "group:api",
+            "translate": "5.272px 0.623px"
+          },
+          {
+            "id": "group:ui",
+            "translate": "0.722px 7.073px"
+          },
+          {
+            "id": "group:react-app",
+            "translate": "-1.883px 5.581px"
+          },
+          {
+            "id": "group:data",
+            "translate": "-0.82px -3.202px"
+          },
+          {
+            "id": "group:architecture",
+            "translate": "6.649px 0.689px"
+          },
+          {
+            "id": "group:teamwork",
+            "translate": "-3.922px 3.763px"
+          },
+          {
+            "id": "group:quality",
+            "translate": "5.067px -3.135px"
+          },
+          {
+            "id": "group:testing",
+            "translate": "-5.319px 1.212px"
+          },
+          {
+            "id": "group:release",
+            "translate": "4.186px 2.239px"
+          },
+          {
+            "id": "group:production",
+            "translate": "1.698px 4.703px"
+          },
+          {
+            "id": "middle-project",
+            "translate": "2.088px 3.772px"
+          }
+        ],
+        "viewportStyle": "translate(1880.09px, 516.966px) scale(0.65)"
+      }
+    }
+  ]
+}

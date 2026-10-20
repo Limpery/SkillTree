@@ -1,0 +1,16 @@
+import { backendReferences as r, backendVertex as v } from './backend-shared.ts';
+
+export function createPythonVertices() {
+  return [
+    v('python', 'Основы Python', 'Python', ['programming'], 'Синтаксис, коллекции, функции, исключения, классы и работа с модулями Python.', 'Реализовать модуль с обработкой ошибок и понятными границами ответственности.', r.python),
+    v('python-typing', 'Типизация и модели Python', 'Typing', ['python', 'oop-design'], 'Аннотации типов, dataclasses, протоколы и представление входных и выходных данных.', 'Описать типы сервиса и проверить передачу данных между его слоями.', r.python),
+    v('python-packaging', 'Окружение и зависимости Python', 'venv / pip', ['python', 'terminal'], 'Виртуальное окружение, зависимости, структура пакета и воспроизводимый запуск.', 'Подготовить проект, который запускается в чистом окружении с зафиксированными зависимостями.', r.python),
+    v('python-async', 'Асинхронность Python', 'async / await', ['python-typing'], 'Корутины, event loop, конкурентные запросы, отмена и блокирующий ввод-вывод.', 'Выполнить несколько операций ввода-вывода без блокировки и корректно обработать отмену.', r.fastapi),
+    v('fastapi', 'Основы FastAPI', 'FastAPI', ['python-typing', 'python-packaging', 'backend-http'], 'Маршруты, зависимости, параметры запроса и тела, схемы ответа и OpenAPI.', 'Создать документированный HTTP API с разделением обработчиков и сервисов.', r.fastapi),
+    v('pydantic', 'Валидация данных в FastAPI', 'Pydantic', ['fastapi', 'api-design'], 'Модели запроса и ответа, ограничения полей, сериализация и единые ошибки проверки данных.', 'Проверить входные данные и исключить выдачу служебных полей в ответе API.', r.fastapi),
+    v('sqlalchemy', 'SQLAlchemy и работа с БД', 'SQLAlchemy', ['fastapi', 'postgresql'], 'Модели, запросы, сессии, загрузка связей и транзакционные границы SQLAlchemy.', 'Реализовать слой хранения с предсказуемыми транзакциями и загрузкой связанных сущностей.', r.sqlalchemy, 'backend-data'),
+    v('python-testing', 'pytest и тесты FastAPI', 'pytest', ['sqlalchemy', 'pydantic', 'python-async', 'backend-testing'], 'Фикстуры pytest, тестовый HTTP-клиент, изолированная база и проверки асинхронных сценариев.', 'Покрыть API проверками доступа, валидации, ошибок и изменения данных в PostgreSQL.', [r.pytest, r.fastapi], 'quality'),
+    v('python-project', 'Проект серверного API на Python', 'Python API', ['python-testing', 'backend-architecture', 'backend-observability', 'backend-performance', 'message-queues', 'backend-teamwork', 'backend-security'], 'Сервис бронирования на FastAPI: SQLAlchemy и PostgreSQL, авторизация, кеширование, фоновые задачи, тесты и контейнерный выпуск.', 'Самостоятельно выпустить API с согласованными операциями бронирования, наблюдаемостью и автоматическими проверками.', [r.fastapi, r.sqlalchemy, r.pytest], 'practice'),
+    v('role:middle-python', 'Middle Python-разработчик', 'Middle Python', ['python-project'], 'Учебный профиль серверной разработки на Python и FastAPI. JavaScript и браузерные фреймворки не входят в обязательный путь.', 'Спроектировать, реализовать, проверить и сопровождать серверную функцию на Python.', r.python, 'practice'),
+  ];
+}

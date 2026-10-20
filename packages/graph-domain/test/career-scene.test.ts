@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFrontendCatalog, Vertex } from '../src/frontend-catalog.ts';
-import { CAREER_SPACING, createCareerScene, fitCareerScene, START_NODE_ID } from '../src/career-scene.ts';
+import { CAREER_FLOAT, CAREER_SPACING, createCareerFloat, createCareerScene, fitCareerScene, START_NODE_ID } from '../src/career-scene.ts';
 import { assembleVertices, type VertexInput } from '../src/vertex.ts';
 import { planForRole } from '../src/index.ts';
 import { KNOWLEDGE_NODE } from '../src/knowledge-layout.ts';
@@ -198,4 +198,58 @@ test('класс больше не содержит типов сложност�
 test('неизвестная специальность отклоняется без изменения каталога', async () => {
   await assert.rejects(createCareerScene(catalog, 'missing'), /Неизвестная специальность/);
   assert.equal(JSON.stringify(catalog), snapshot);
+});
+
+test('плавание ограничено радиусом, начинается плавно и не меняет исходную сцену', async () => {
+  for (const scene of [await createCareerScene(catalog), ...await scenes]) {
+    const snapshot = JSON.stringify(scene), sample = createCareerFloat(scene), again = createCareerFloat(scene);
+    assert.deepEqual(sample(0).positions, scene.positions);
+    const moved = sample(5000).positions;
+    assert(scene.nodes.some(node => Math.hypot(moved[node.id].x - scene.positions[node.id].x, moved[node.id].y - scene.positions[node.id].y) > 1));
+    const offsets = scene.nodes.map(node => [moved[node.id].x - scene.positions[node.id].x, moved[node.id].y - scene.positions[node.id].y]);
+    assert(new Set(offsets.map(offset => offset.join(','))).size > 1, 'Вершины должны двигаться независимо');
+    for (let time = 0; time <= 120000; time += 1000) {
+      const current = sample(time), next = sample(time + 16);
+      assert.deepEqual(current, again(time));
+      for (const node of scene.nodes) {
+        const point = current.positions[node.id], anchor = scene.positions[node.id];
+        assert(Math.hypot(point.x - anchor.x, point.y - anchor.y) <= CAREER_FLOAT.radius + 1e-6);
+        assert(Math.hypot(point.x - next.positions[node.id].x, point.y - next.positions[node.id].y) < .25, 'Движение должно быть медленным и без скачков');
+      }
+    }
+    assert.equal(JSON.stringify(scene), snapshot);
+  }
+});
+
+test('при плавании связи остаются прямыми и прикреплёнными к кругам, пересечений нет', async () => {
+  const cross = (a: Point, b: Point, c: Point) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  for (const scene of [await createCareerScene(catalog), ...await scenes]) {
+    const sample = createCareerFloat(scene);
+    for (let time = 0; time <= 120000; time += 1000) {
+      const { positions, edges } = sample(time), ids = Object.keys(positions);
+      assert.equal(edges.length, scene.edges.length);
+      for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+        const a = positions[ids[i]], b = positions[ids[j]];
+        assert(Math.hypot(a.x - b.x, a.y - b.y) > KNOWLEDGE_NODE.radius * 2 + 10);
+      }
+      for (const edge of edges) {
+        assert.equal(edge.points.length, 2);
+        const [a, b] = edge.points, source = positions[edge.source], target = positions[edge.target];
+        assert(Math.abs(Math.hypot(a.x - source.x, a.y - source.y) - KNOWLEDGE_NODE.radius) < 1e-6);
+        assert(Math.abs(Math.hypot(b.x - target.x, b.y - target.y) - KNOWLEDGE_NODE.radius) < 1e-6);
+        for (const id of ids) {
+          if (id === edge.source || id === edge.target) continue;
+          const p = positions[id], dx = b.x - a.x, dy = b.y - a.y;
+          const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy)));
+          assert(Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy) > KNOWLEDGE_NODE.radius + 1, edge.id + '/' + id);
+        }
+      }
+      for (let i = 0; i < edges.length; i++) for (let j = i + 1; j < edges.length; j++) {
+        const a = edges[i], b = edges[j];
+        if ([a.source, a.target].some(id => id === b.source || id === b.target)) continue;
+        const [p, q] = a.points, [r, s] = b.points;
+        assert(!(cross(p, q, r) * cross(p, q, s) < -1e-6 && cross(r, s, p) * cross(r, s, q) < -1e-6), a.id + '/' + b.id);
+      }
+    }
+  }
 });

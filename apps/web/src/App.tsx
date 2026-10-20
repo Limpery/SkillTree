@@ -2,11 +2,13 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProper
 import { Background, Handle, MarkerType, Position, ReactFlow, useNodesInitialized, useReactFlow, type Edge, type EdgeProps, type Node, type NodeProps } from '@xyflow/react';
 import { ArrowUpRight, BookOpen, ChevronRight, Code2, Compass, ExternalLink, FolderKanban, GitBranch, GraduationCap, Layers, Maximize2, Minus, Network, Plus, Search, UserRound, Users, X } from 'lucide-react';
 import type { KnowledgeTopic } from '@skilltree/graph-domain/middle-react';
-import { createFrontendCatalog, trackMembership } from '@skilltree/graph-domain/frontend-catalog';
-import { KNOWLEDGE_NODE } from '@skilltree/graph-domain/knowledge-layout';
+import { trackMembership } from '@skilltree/graph-domain/frontend-catalog';
+import { createSkillCatalog } from '@skilltree/graph-domain/skill-catalog';
+import { KNOWLEDGE_NODE, KNOWLEDGE_NODE_SCALE } from '@skilltree/graph-domain/knowledge-layout';
 import { fitCareerScene, type CareerNode } from '@skilltree/graph-domain/career-scene';
 import { planForRole } from '@skilltree/graph-domain';
 import { useCareerScene } from './useCareerScene';
+import { useFloatingGraph } from './useFloatingGraph';
 
 type TopicNode = Node<{ item: CareerNode; selected: boolean; related: boolean; muted: boolean; active: boolean; branch: string }, 'knowledge'>;
 const nodeOrigin: [number, number] = [.5, .5];
@@ -14,6 +16,7 @@ const nodeTypes = { knowledge: memo(KnowledgeNode) }, edgeTypes = { knowledge: m
 const normalize = (value: string) => value.toLocaleLowerCase('ru').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 const motionDuration = (ms: number) => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms;
 const word = (count: number) => count % 10 === 1 && count % 100 !== 11 ? 'тема' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'темы' : 'тем';
+const branchColors: Record<string, string> = { react: '#8ebbd8', vue: '#77c7ad', nodejs: '#a8ce7e', python: '#c6a8e4', java: '#e0b08b', shared: '#9dbb82' };
 const modules = [
   { id: 'map', label: 'Карта', icon: Network },
   { id: 'graphs', label: 'Мои графы', icon: FolderKanban },
@@ -26,7 +29,7 @@ const currentModule = () => modules.find(module => window.location.hash === '#/'
 
 function KnowledgeNode({ data }: NodeProps<TopicNode>) {
   const { item } = data, hub = item.start || item.careerId;
-  const style = { '--reveal-delay': `${Math.min(260, item.depth * 30)}ms` } as CSSProperties;
+  const style = { '--node-scale': KNOWLEDGE_NODE_SCALE, '--reveal-delay': `${Math.min(260, item.depth * 30)}ms` } as CSSProperties;
   return <div className={'knowledge-node branch-' + data.branch + (hub ? ' career-hub' : ' detail-node') + (item.start ? ' start-node' : '') + (item.careerId ? ' profession-node' : '') + (data.active ? ' is-active-career' : '') + (data.selected ? ' is-selected' : '') + (data.related ? ' is-related' : '') + (data.muted ? ' is-muted' : '') + (item.memberIds.length > 1 ? ' is-group' : '')} style={style} data-topic-id={item.id} data-member-ids={item.memberIds.join(',')} data-career-id={item.careerId} data-branch={data.branch}>
     <Handle type="target" position={Position.Left} className="knowledge-handle" isConnectable={false} />
     <button className="knowledge-orb nodrag" type="button" title={item.label} aria-label={item.label}>
@@ -38,11 +41,11 @@ function KnowledgeNode({ data }: NodeProps<TopicNode>) {
   </div>;
 }
 function KnowledgeConnection(props: EdgeProps) {
-  return <path d={String(props.data?.path ?? '')} className="react-flow__edge-path" pathLength={1} markerEnd={props.markerEnd} style={{ '--reveal-delay': `${props.data?.delay ?? 0}ms`, strokeWidth: Number(props.data?.strokeWidth ?? 1.5) } as CSSProperties} />;
+  return <path d={String(props.data?.path ?? '')} data-motion-edge-id={props.id} className="react-flow__edge-path" pathLength={1} markerEnd={props.markerEnd} style={{ '--reveal-delay': `${props.data?.delay ?? 0}ms`, strokeWidth: Number(props.data?.strokeWidth ?? 1.5) } as CSSProperties} />;
 }
 
 export function App() {
-  const catalog = useMemo(createFrontendCatalog, []);
+  const catalog = useMemo(createSkillCatalog, []);
   const { scene, phase, requestedRoleId, error, switchTo } = useCareerScene(catalog);
   const topics = useMemo(() => new Map(catalog.topics.map(topic => [topic.id, topic])), [catalog]);
   const membership = useMemo(() => trackMembership(catalog), [catalog]);
@@ -54,6 +57,7 @@ export function App() {
   const [tab, setTab] = useState<'overview' | 'connections'>('overview');
   const flow = useReactFlow<TopicNode>(), initialized = useNodesInitialized({ includeHiddenNodes: true });
   const graphElement = useRef<HTMLElement>(null), detailElement = useRef<HTMLElement>(null);
+  useFloatingGraph(graphElement, scene, activeModule === 'map' && initialized);
   const toolbarElement = useRef<HTMLDivElement>(null);
   const selectionVersion = useRef(0);
   const selected = selectedId ? topics.get(selectedId) : undefined;
@@ -70,7 +74,9 @@ export function App() {
     if (!scene || !graphElement.current) return;
     const { clientWidth, clientHeight } = graphElement.current;
     if (!clientWidth || !clientHeight) return;
-    void flow.setViewport(fitCareerScene(scene.bounds, clientWidth, clientHeight), { duration: motionDuration(600) });
+    const canvas = graphElement.current.getBoundingClientRect(), toolbar = toolbarElement.current?.getBoundingClientRect();
+    const padding = { top: toolbar ? Math.max(100, toolbar.bottom - canvas.top + 20) : 100, bottom: 70 };
+    void flow.setViewport(fitCareerScene(scene.bounds, clientWidth, clientHeight, padding), { duration: motionDuration(600) });
   }, [scene, flow]);
   const focusSelected = useCallback(() => {
     if (!selectedId || !scene || !graphElement.current || activeModule !== 'map' || phase !== 'idle') return;
@@ -87,7 +93,8 @@ export function App() {
     }
     const width = Math.max(100, right - left), height = Math.max(100, bottom - top);
     const currentZoom = flow.getZoom();
-    const nextZoom = Math.min(1, Math.max(.65, Number.isFinite(currentZoom) ? currentZoom : .65), width / 260, height / 260);
+    const focusSize = KNOWLEDGE_NODE.width + 64;
+    const nextZoom = Math.min(1, Math.max(.65, Number.isFinite(currentZoom) ? currentZoom : .65), width / focusSize, height / focusSize);
     void flow.setViewport({ x: left + width / 2 - point.x * nextZoom, y: top + height / 2 - point.y * nextZoom, zoom: nextZoom }, { duration: motionDuration(350) });
   }, [selectedId, scene, flow, phase, activeModule]);
   // Bounds are known before DOM measurement; fit once per scene to avoid camera restarts.
@@ -162,7 +169,7 @@ export function App() {
     const source = scene.nodes.find(node => node.id === edge.source)!, target = scene.nodes.find(node => node.id === edge.target)!;
     const navigation = scene.steps.find(step => step.id === edge.id)?.kind === 'navigation';
     const active = Boolean(selectedView && (edge.source === selectedView.id || edge.target === selectedView.id));
-    const branch = branchFor(target.memberIds), color = branch === 'react' ? '#8ebbd8' : branch === 'vue' ? '#77c7ad' : '#9dbb82';
+    const branch = branchFor(target.memberIds), color = branchColors[branch];
     return { id: edge.id, source: edge.source, target: edge.target, type: 'knowledge', selectable: false,
       data: { path: edge.path, delay: Math.min(260, target.depth * 30), strokeWidth: Math.max(1.5, (active ? 1.4 : .9) / zoom) },
       className: (source.start ? 'hub-edge' : 'detail-edge') + (navigation ? ' navigation-edge' : '') + (active ? ' is-path-active' : neighbours ? ' knowledge-edge-muted' : ''),

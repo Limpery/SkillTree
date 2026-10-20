@@ -1,11 +1,12 @@
 import { planForRole, type Point, type Relation } from './index.ts';
-import type { FrontendCatalog } from './frontend-catalog.ts';
+import type { CareerCatalog } from './frontend-catalog.ts';
 import type { KnowledgeTopic } from './middle-react.ts';
 import { KNOWLEDGE_NODE, type KnowledgeEdge } from './knowledge-layout.ts';
 import { learningBlocks } from './career-curriculum.ts';
 
 export const START_NODE_ID = 'map:start';
-export const CAREER_SPACING = { step: 300, parallel: 224, scatter: 30, maxLinkLength: 640 } as const;
+export const CAREER_SPACING = { step: 300, parallel: KNOWLEDGE_NODE.radius * 2 + 64, scatter: 30, maxLinkLength: 640 } as const;
+export const CAREER_FLOAT = { radius: 8, minPeriodMs: 14000, maxPeriodMs: 22000, fadeInMs: 2000 } as const;
 export type CareerNode = { id: string; label: string; short: string; memberIds: string[]; topic?: KnowledgeTopic; careerId?: string; start?: boolean; count?: number; depth: number };
 export type CareerRelation = Relation & { originalRelations: Relation[]; navigation?: boolean };
 export type CareerStep = { id: string; source: string; target: string; kind: 'navigation' | 'learning-step' };
@@ -15,6 +16,32 @@ export type CareerScene = {
   positions: Record<string, Point>; nodeIdByTopic: Map<string, string>; bounds: SceneBounds; topicCount: number;
 };
 
+/** Visual offsets never alter the stored layout; nodes and straight edges share one frame. */
+export function createCareerFloat(scene: CareerScene) {
+  const unit = (key: string) => (noise(key) + 1) / 2;
+  const orbits = scene.nodes.map(node => ({
+    id: node.id, anchor: scene.positions[node.id],
+    radius: CAREER_FLOAT.radius * (.65 + .35 * unit(node.id + ':radius')),
+    period: CAREER_FLOAT.minPeriodMs + (CAREER_FLOAT.maxPeriodMs - CAREER_FLOAT.minPeriodMs) * unit(node.id + ':period'),
+    phase: unit(node.id + ':phase') * Math.PI * 2,
+    direction: unit(node.id + ':direction') < .5 ? -1 : 1,
+    ellipse: .6 + .3 * unit(node.id + ':ellipse'),
+  }));
+  return (elapsedMs: number): Pick<CareerScene, 'positions' | 'edges'> => {
+    const time = Math.max(0, elapsedMs);
+    const fade = Math.sin(Math.min(1, time / CAREER_FLOAT.fadeInMs) * Math.PI / 2) ** 2;
+    const positions: Record<string, Point> = {};
+    for (const orbit of orbits) {
+      const angle = orbit.phase + orbit.direction * time * Math.PI * 2 / orbit.period;
+      positions[orbit.id] = {
+        x: orbit.anchor.x + Math.cos(angle) * orbit.radius * fade,
+        y: orbit.anchor.y + Math.sin(angle) * orbit.radius * orbit.ellipse * fade,
+      };
+    }
+    return { positions, edges: scene.steps.map(edge => straightConnection(edge, positions)) };
+  };
+}
+
 function boundsOf(positions: Record<string, Point>): SceneBounds {
   const values = Object.values(positions), margin = KNOWLEDGE_NODE.width / 2 + 50;
   const x = Math.min(...values.map(p => p.x)) - margin, y = Math.min(...values.map(p => p.y)) - margin;
@@ -22,13 +49,13 @@ function boundsOf(positions: Record<string, Point>): SceneBounds {
 }
 
 /** Fits the actual scene, including labels, rather than a fixed catalogue size. */
-export function fitCareerScene(bounds: SceneBounds, width: number, height: number) {
-  const zoom = Math.max(.02, Math.min(.95, Math.max(100, width - 90) / bounds.width, Math.max(100, height - 170) / bounds.height));
-  return { x: width / 2 - (bounds.x + bounds.width / 2) * zoom, y: (height + 30) / 2 - (bounds.y + bounds.height / 2) * zoom, zoom };
+export function fitCareerScene(bounds: SceneBounds, width: number, height: number, padding = { top: 100, bottom: 70 }) {
+  const zoom = Math.max(.02, Math.min(.95, Math.max(100, width - 90) / bounds.width, Math.max(100, height - padding.top - padding.bottom) / bounds.height));
+  return { x: width / 2 - (bounds.x + bounds.width / 2) * zoom, y: (height + padding.top - padding.bottom) / 2 - (bounds.y + bounds.height / 2) * zoom, zoom };
 }
 
 /** The overview contains only Start and real specialties. A scene contains one full career path. */
-export async function createCareerScene(catalog: FrontendCatalog, roleId?: string): Promise<CareerScene> {
+export async function createCareerScene(catalog: CareerCatalog, roleId?: string): Promise<CareerScene> {
   if (roleId && !catalog.roles.some(role => role.id === roleId)) throw new Error('Неизвестная специальность: ' + roleId);
   const topics = new Map(catalog.topics.map(topic => [topic.id, topic]));
   const nodes: CareerNode[] = [{ id: START_NODE_ID, label: 'Начало', short: 'SkillTree', memberIds: [], start: true, depth: 0 }];
@@ -48,7 +75,7 @@ export async function createCareerScene(catalog: FrontendCatalog, roleId?: strin
   if (!roleId) return { nodes, steps, edges: steps.map(edge => straightConnection(edge, positions)), connections: [], positions, nodeIdByTopic, bounds: boundsOf(positions), topicCount: 0 };
 
   const topicIds = planForRole(catalog, roleId).topicIds, allowed = new Set(topicIds);
-  const blocks = learningBlocks(catalog, topicIds);
+  const blocks = learningBlocks(catalog, topicIds, roleId);
   for (const block of blocks) {
     for (const id of block.memberIds) nodeIdByTopic.set(id, block.id);
     nodes.push({ id: block.id, label: block.label, short: block.short, memberIds: block.memberIds, topic: topics.get(block.memberIds[0])!, depth: 0 });

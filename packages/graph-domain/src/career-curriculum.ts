@@ -1,7 +1,8 @@
-import type { FrontendCatalog } from './frontend-catalog.ts';
+import type { CareerCatalog } from './frontend-catalog.ts';
+import { backendBlocks } from './backend-curriculum.ts';
 
 export type LearningBlock = { id: string; label: string; short: string; memberIds: string[]; preferredStep: number };
-type BlockSpec = { id: string; step: number; members?: string[]; label?: string; short?: string };
+export type BlockSpec = { id: string; step: number; members?: string[]; label?: string; short?: string };
 
 // Presentation blocks and learning preferences do not add prerequisites to the catalogue.
 const blocks: BlockSpec[] = [
@@ -32,13 +33,15 @@ const blocks: BlockSpec[] = [
 ];
 
 /** Each required topic belongs to exactly one block; tabs retain prerequisite order. */
-export function learningBlocks(catalog: FrontendCatalog, topicIds: string[]): LearningBlock[] {
+export function learningBlocks(catalog: CareerCatalog, topicIds: string[], roleId?: string): LearningBlock[] {
   const allowed = new Set(topicIds), assigned = new Set<string>();
   const priority = new Map(topicIds.map((id, index) => [id, index]));
   const topics = new Map(catalog.topics.map(topic => [topic.id, topic]));
   const groups = new Map(catalog.vertexGroups.map(group => [group.id, group]));
   const result: LearningBlock[] = [];
-  for (const spec of blocks) {
+  const track = catalog.tracks.find(track => track.roleId === roleId);
+  const specs = track && !['react', 'vue'].includes(track.id) ? backendBlocks : blocks;
+  for (const spec of specs) {
     const group = groups.get(spec.id), topic = topics.get(spec.id);
     const memberIds = (spec.members ?? group?.members ?? [spec.id]).filter(id => allowed.has(id));
     if (!memberIds.length) continue;

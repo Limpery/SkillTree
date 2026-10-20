@@ -15,9 +15,10 @@ import { stages, roles, vertexGroups } from './nodes/metadata.ts';
 export { Vertex } from './vertex.ts';
 export type { VertexGroup, VertexInput } from './vertex.ts';
 export const MIDDLE_VUE_ROLE = 'role:middle-vue';
-export type TrackId = 'react' | 'vue';
-export type FrontendTrack = { id: TrackId; label: string; roleId: string; entryId: string };
-export type FrontendCatalog = KnowledgeCatalog & { tracks: FrontendTrack[]; vertices: Vertex[]; vertexGroups: VertexGroup[] };
+export type TrackId = 'react' | 'vue' | 'nodejs' | 'python' | 'java';
+export type CareerTrack = { id: TrackId; label: string; roleId: string; entryId: string };
+export type CareerCatalog = KnowledgeCatalog & { tracks: CareerTrack[]; vertices: Vertex[]; vertexGroups: VertexGroup[] };
+export type FrontendCatalog = CareerCatalog;
 
 /** Main assembly point. Content is authored by subject in nodes/*.ts, without difficulty levels. */
 export function createFrontendCatalog(): FrontendCatalog {

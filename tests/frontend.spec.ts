@@ -1,5 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
+// Keep functional click targets stable; live floating is checked separately from these flows.
+test.use({ reducedMotion: 'reduce' });
+
 const map = (page: Page) => page.getByRole('region', { name: 'Карта траектории' });
 const switcher = (page: Page) => page.getByRole('navigation', { name: 'Специальности' });
 async function ready(page: Page, role = '') {
@@ -22,8 +25,8 @@ async function expectMapNotPainted(page: Page) {
 }
 test.beforeEach(async ({ page }) => { await page.goto('/'); await ready(page); });
 
-test('обзор содержит только начало и две специальности без колец и полей', async ({ page }) => {
-  await expect(page.locator('[data-topic-id]')).toHaveCount(3);
+test('обзор содержит только начало и пять специальностей без колец и полей', async ({ page }) => {
+  await expect(page.locator('[data-topic-id]')).toHaveCount(6);
   await expect(map(page).getByRole('button', { name: 'Начало', exact: true })).toBeVisible();
   await expect(map(page).getByRole('button', { name: 'Middle React-разработчик', exact: true })).toBeVisible();
   await expect(page.locator('.level-band, .curriculum-nav')).toHaveCount(0);
@@ -32,7 +35,7 @@ test('обзор содержит только начало и две специ
 test('нажатие специальности раскрывает только её полный путь', async ({ page }) => {
   await map(page).getByRole('button', { name: 'Middle React-разработчик', exact: true }).click();
   await ready(page, 'role:middle-react');
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
   await expect(page.locator('[data-topic-id="group:react"]')).toHaveCount(1);
   await expect(page.locator('[data-topic-id="group:vue"]')).toHaveCount(0);
   await expect(map(page).getByRole('heading', { name: 'Middle React-разработчик', exact: true })).toBeVisible();
@@ -45,7 +48,7 @@ test('смена специальности удаляет предыдущие 
   const previous = await page.locator('.react-flow__viewport').getAttribute('style');
   await switcher(page).getByRole('button', { name: 'Vue · Middle', exact: true }).click();
   await ready(page, 'role:middle-vue');
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
   await expect(page.locator('[data-topic-id="group:react"]')).toHaveCount(0);
   await expect(page.locator('[data-topic-id="group:vue"]')).toHaveCount(1);
   await expect.poll(() => page.locator('.react-flow__viewport').getAttribute('style')).not.toBe(previous);
@@ -57,7 +60,7 @@ test('быстрые переключения применяют последн�
   await switcher(page).getByRole('button', { name: 'React · Middle', exact: true }).click();
   await ready(page, 'role:middle-react');
   await expect(page.locator('[data-topic-id="group:vue"]')).toHaveCount(0);
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
 });
 
 test('поиск открывает профессию и нужную вкладку, группы не разделяются', async ({ page }) => {
@@ -72,7 +75,7 @@ test('поиск открывает профессию и нужную вкла�
   await tabs.getByRole('tab', { name: 'Основы React', exact: true }).press('ArrowRight');
   await expect(page.getByTestId('selected-title')).toHaveText('Состояние и Hooks');
   await page.getByRole('button', { name: 'Приблизить', exact: true }).click();
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
 });
 
 test('карточка содержит все предпосылки API и переходы к связанным темам', async ({ page }) => {
@@ -104,7 +107,7 @@ test('начало закрывает ветку и возвращает обз�
   await ready(page, 'role:middle-vue');
   await map(page).getByRole('button', { name: 'Специальности', exact: true }).click();
   await ready(page);
-  await expect(page.locator('[data-topic-id]')).toHaveCount(3);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(6);
 });
 
 test('поиск на узком экране не создаёт горизонтального переполнения', async ({ page }) => {
@@ -140,7 +143,7 @@ test('карта заполняет экран под навигацией, ка
   await expect.poll(async () => { const node = await page.locator('[data-topic-id="group:react"]').boundingBox(); return node!.x + node!.width; }).toBeLessThan(drawer!.x);
   await panel.getByRole('button', { name: 'Закрыть карточку', exact: true }).click();
   await expect(panel).toHaveCount(0);
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
 });
 
 test('другие модули полностью скрывают карту и сохраняют выбранную тему при возврате', async ({ page }) => {
@@ -174,6 +177,7 @@ test('другие модули полностью скрывают карту �
 });
 
 test('переключение модуля во время построения ветки не оставляет вершины на новом экране', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await switcher(page).getByRole('button', { name: 'React · Middle', exact: true }).click();
   const navigation = page.getByRole('navigation', { name: 'Модули платформы' });
   await navigation.getByRole('link', { name: 'Курсы', exact: true }).click();
@@ -182,6 +186,22 @@ test('переключение модуля во время построения
   await expectMapNotPainted(page);
   await navigation.getByRole('link', { name: 'Карта', exact: true }).click();
   await ready(page, 'role:middle-react');
-  await expect(page.locator('[data-topic-id]')).toHaveCount(24);
+  await expect(page.locator('[data-topic-id]')).toHaveCount(27);
+  await expect(page.locator('.react-flow__viewport')).not.toHaveAttribute('style', /NaN/);
+});
+
+for (const profile of [
+  { id: 'nodejs', label: 'Node.js', nodes: 27, topic: 'group:nestjs' },
+  { id: 'python', label: 'Python', nodes: 26, topic: 'group:fastapi' },
+  { id: 'java', label: 'Java', nodes: 26, topic: 'group:spring' },
+]) test(`${profile.label}: поиск профессии раскрывает собственный серверный путь`, async ({ page }) => {
+  const search = page.getByRole('textbox', { name: 'Найти компетенцию' });
+  await search.fill(profile.id + ' разработчик');
+  await search.press('Enter');
+  await ready(page, 'role:middle-' + profile.id);
+  await expect(map(page).getByRole('heading', { name: `Middle ${profile.label}-разработчик`, exact: true })).toBeVisible();
+  await expect(page.locator('[data-topic-id]')).toHaveCount(profile.nodes);
+  await expect(page.locator(`[data-topic-id="${profile.topic}"]`)).toHaveCount(1);
+  await expect(page.locator('[data-topic-id="group:react"], [data-topic-id="group:vue"]')).toHaveCount(0);
   await expect(page.locator('.react-flow__viewport')).not.toHaveAttribute('style', /NaN/);
 });

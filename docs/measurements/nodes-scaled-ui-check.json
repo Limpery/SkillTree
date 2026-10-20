@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-20",
+  "method": "Manual CUA checks; npm test 44/44 and npm run build passed",
+  "scale": 1.3,
+  "checks": [
+    {
+      "scenario": "Широкий экран, карточка API",
+      "result": {
+        "diameter": "208px",
+        "drawer": {
+          "bottom": 824.0000152587891,
+          "height": 647.2000122070312,
+          "left": 1056,
+          "right": 1416,
+          "top": 176.8000030517578,
+          "width": 360,
+          "x": 1056,
+          "y": 176.8000030517578
+        },
+        "edges": 30,
+        "groupCountFont": "14.3px",
+        "labels": [],
+        "longTitleFont": "18.2px",
+        "nodeWidth": "254.8px",
+        "nodes": 24,
+        "overflow": false,
+        "selected": {
+          "bottom": 567.4350128173828,
+          "height": 135.1999969482422,
+          "left": 463.3350524902344,
+          "right": 598.5350494384766,
+          "top": 432.2350158691406,
+          "width": 135.1999969482422,
+          "x": 463.3350524902344,
+          "y": 432.2350158691406
+        },
+        "symbolFont": "24.7px",
+        "titleFont": "22.1px",
+        "viewport": {
+          "height": 900,
+          "width": 1440
+        },
+        "zoom": "65%"
+      }
+    },
+    {
+      "scenario": "Узкий экран, карточка API",
+      "result": {
+        "diameter": "208px",
+        "drawer": {
+          "bottom": 774,
+          "height": 313.8125,
+          "left": 14,
+          "right": 376.3999938964844,
+          "top": 460.1875,
+          "width": 362.3999938964844,
+          "x": 14,
+          "y": 460.1875
+        },
+        "edges": 30,
+        "groupCountFont": "14.3px",
+        "labels": [],
+        "longTitleFont": "18.2px",
+        "nodeWidth": "254.8px",
+        "nodes": 24,
+        "overflow": false,
+        "selected": {
+          "bottom": 408.88621520996094,
+          "height": 124.8048858642578,
+          "left": 132.7375030517578,
+          "right": 257.54248809814453,
+          "top": 284.0813293457031,
+          "width": 124.80498504638672,
+          "x": 132.7375030517578,
+          "y": 284.0813293457031
+        },
+        "symbolFont": "24.7px",
+        "titleFont": "22.1px",
+        "viewport": {
+          "height": 844,
+          "width": 390
+        },
+        "zoom": "60%"
+      }
+    }
+  ]
+}

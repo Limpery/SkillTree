@@ -66,6 +66,9 @@ svg { flex-shrink: 0; }
 .track-dot { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 .track-react .track-dot { background: #8ebbd8; }
 .track-vue .track-dot { background: #77c7ad; }
+.track-nodejs .track-dot { background: #a8ce7e; }
+.track-python .track-dot { background: #c6a8e4; }
+.track-java .track-dot { background: #e0b08b; }
 .search-wrap { position: relative; display: flex; flex-shrink: 0; align-items: center; gap: 10px; width: 332px; min-height: 43px; padding: 0 13px; border: 1px solid var(--line); border-radius: 10px; background: #18261eF5; color: var(--text-muted); box-shadow: 0 4px 20px #00000015; }
 .search-wrap:focus-within { border-color: #7e9f67; box-shadow: 0 0 0 3px var(--selection-glow); }
 .search-wrap input { width: 100%; min-width: 0; height: 42px; padding: 0; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 13px; }
